@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Settings, UploadCloud, RefreshCw, Folder } from 'lucide-react';
+import { Settings, UploadCloud, RefreshCw, Folder, Moon, Sun } from 'lucide-react';
 import ConfigModal from '@/components/ConfigModal';
 import UploadModal from '@/components/UploadModal';
 import FileList, { R2File } from '@/components/FileList';
-import { R2Config, hasConfig, loadConfig, getSitePassword } from '@/lib/config';
+import { R2Config, hasConfig, loadConfig } from '@/lib/config';
 import { listFiles, checkAuth } from '@/lib/api';
 import { useTranslation } from '@/components/LanguageProvider';
 
@@ -17,13 +17,12 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
-  const { t, lang, setLang } = useTranslation();
+  const { t, lang, setLang, theme, setTheme } = useTranslation();
 
   useEffect(() => {
     setIsClient(true);
-    const pwd = getSitePassword();
-    if (pwd && hasConfig()) {
-      const loaded = loadConfig(pwd);
+    if (hasConfig()) {
+      const loaded = loadConfig();
       if (loaded) {
         setConfig(loaded);
       } else {
@@ -68,9 +67,6 @@ export default function Home() {
     <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%)', padding: '12px', borderRadius: '16px', boxShadow: '0 8px 32px rgba(99, 102, 241, 0.4)' }}>
-            <Folder size={28} color="white" />
-          </div>
           <div>
             <h1 style={{ fontSize: '28px', fontWeight: 700, margin: 0, letterSpacing: '-0.5px' }}>{t('appTitle')}</h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: '4px 0 0 0' }}>
@@ -80,6 +76,14 @@ export default function Home() {
         </div>
         
         <div style={{ display: 'flex', gap: '12px' }}>
+          <button 
+            className="btn btn-outline"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            title="Toggle theme"
+            style={{ padding: '10px' }}
+          >
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
           <button 
             className="btn btn-outline"
             onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}

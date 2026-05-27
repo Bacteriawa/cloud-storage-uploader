@@ -1,9 +1,8 @@
-import { R2Config, getSitePassword } from './config';
+import { R2Config } from './config';
 import axios from 'axios';
 
 function getHeaders(config: R2Config) {
   return {
-    'Authorization': `Bearer ${getSitePassword()}`,
     'X-R2-Access-Key': config.accessKeyId,
     'X-R2-Secret-Key': config.secretAccessKey,
     'X-R2-Bucket': config.bucket,
@@ -53,5 +52,10 @@ export async function getMultipartPresignedUrl(config: R2Config, key: string, up
 
 export async function completeMultipartUpload(config: R2Config, key: string, uploadId: string, parts: { partNumber: number, eTag: string }[]) {
   const res = await axios.post('/api/upload/multipart/complete', { key, uploadId, parts }, { headers: getHeaders(config) });
+  return res.data;
+}
+
+export async function setupCors(config: R2Config) {
+  const res = await axios.post('/api/cors', {}, { headers: getHeaders(config) });
   return res.data;
 }

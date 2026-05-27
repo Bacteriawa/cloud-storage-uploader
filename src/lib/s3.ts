@@ -29,10 +29,6 @@ export function getBucketName(req: Request) {
 }
 
 export function verifyAuth(req: Request) {
-  const authHeader = req.headers.get('Authorization');
-  const sitePassword = process.env.SITE_PASSWORD;
-  
-  if (sitePassword && authHeader !== `Bearer ${sitePassword}`) {
-    throw new Error('Unauthorized');
-  }
+  // Authentication has been removed per user request
+  return true;
 }

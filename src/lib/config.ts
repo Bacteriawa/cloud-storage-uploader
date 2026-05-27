@@ -1,6 +1,3 @@
-import AES from 'crypto-js/aes';
-import encUtf8 from 'crypto-js/enc-utf8';
-
 export interface R2Config {
   accessKeyId: string;
   secretAccessKey: string;
@@ -11,23 +8,20 @@ export interface R2Config {
 
 const STORAGE_KEY = 'r2_uploader_config';
 
-export function saveConfig(config: R2Config, encryptionKey: string) {
+export function saveConfig(config: R2Config) {
   const jsonStr = JSON.stringify(config);
-  const encrypted = AES.encrypt(jsonStr, encryptionKey).toString();
-  localStorage.setItem(STORAGE_KEY, encrypted);
-  localStorage.setItem('r2_site_password', config.sitePassword || '');
+  localStorage.setItem(STORAGE_KEY, jsonStr);
+  if (config.sitePassword) {
+    localStorage.setItem('r2_site_password', config.sitePassword);
+  }
 }
 
-export function loadConfig(decryptionKey: string): R2Config | null {
-  const encrypted = localStorage.getItem(STORAGE_KEY);
-  if (!encrypted) return null;
+export function loadConfig(): R2Config | null {
+  const jsonStr = localStorage.getItem(STORAGE_KEY);
+  if (!jsonStr) return null;
 
   try {
-    const decryptedBytes = AES.decrypt(encrypted, decryptionKey);
-    const decryptedStr = decryptedBytes.toString(encUtf8);
-    if (!decryptedStr) return null;
-    
-    return JSON.parse(decryptedStr) as R2Config;
+    return JSON.parse(jsonStr) as R2Config;
   } catch (e) {
     return null;
   }
