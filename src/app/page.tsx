@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Settings, UploadCloud, RefreshCw, Folder, Moon, Sun } from 'lucide-react';
+import { Settings, UploadCloud, RefreshCw, Folder, Moon, Sun, Database } from 'lucide-react';
 import ConfigModal from '@/components/ConfigModal';
 import UploadModal from '@/components/UploadModal';
 import PreviewModal from '@/components/PreviewModal';
@@ -17,6 +17,7 @@ export default function Home() {
   const [files, setFiles] = useState<R2File[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [latency, setLatency] = useState<number | null>(null);
   const [isClient, setIsClient] = useState(false);
   const [previewKey, setPreviewKey] = useState<string | null>(null);
   const { t, lang, setLang, theme, setTheme } = useTranslation();
@@ -39,8 +40,10 @@ export default function Home() {
     try {
       setLoading(true);
       setError(null);
-      // Verify auth first
+      // Verify auth first and measure latency
+      const start = Date.now();
       await checkAuth(cfg);
+      setLatency(Date.now() - start);
       // Then load files
       const data = await listFiles(cfg);
       setFiles(data);
@@ -66,8 +69,29 @@ export default function Home() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div>
             <h1 style={{ fontSize: '28px', fontWeight: 700, margin: 0, letterSpacing: '-0.5px' }}>{t('appTitle')}</h1>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: '4px 0 0 0' }}>
-              {config ? `${t('connectedTo')} ${config.bucket}` : t('notConnected')}
+            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: '4px 0 0 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {config ? (
+                <>
+                  <span 
+                    title={latency ? `Latency: ${latency}ms` : 'Connecting...'}
+                    style={{ 
+                      width: '8px', 
+                      height: '8px', 
+                      borderRadius: '50%', 
+                      background: latency ? (latency < 300 ? 'var(--success)' : latency < 800 ? '#f59e0b' : 'var(--danger)') : 'var(--text-secondary)',
+                      boxShadow: latency && latency < 300 ? '0 0 8px var(--success)' : 'none'
+                    }} 
+                  />
+                  <Database size={14} />
+                  <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{config.bucket}</span> 
+                  {latency ? <span style={{ opacity: 0.7, fontSize: '12px' }}>{latency}ms</span> : ''}
+                </>
+              ) : (
+                <>
+                  <Database size={14} style={{ opacity: 0.5 }} />
+                  {t('notConnected')}
+                </>
+              )}
             </p>
           </div>
         </div>
