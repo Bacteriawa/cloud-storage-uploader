@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { File as FileIcon, Trash2, Edit2, Download, ExternalLink } from 'lucide-react';
+import { File as FileIcon, Trash2, Edit2, Download, Link as LinkIcon, Check } from 'lucide-react';
 import { R2Config } from '@/lib/config';
 import { deleteFile, renameFile, getDownloadUrl } from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -24,6 +24,7 @@ export default function FileList({ files, config, onRefresh }: Props) {
   const [renamingKey, setRenamingKey] = useState<string | null>(null);
   const [newKey, setNewKey] = useState('');
   const [loading, setLoading] = useState<string | null>(null);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const formatSize = (bytes: number) => {
     if (bytes === 0) return '0 B';
@@ -84,6 +85,28 @@ export default function FileList({ files, config, onRefresh }: Props) {
     }
   };
 
+  const handleCopyLink = async (key: string) => {
+    if (!config.publicDomain) return;
+    
+    // ensure domain ends without slash
+    const domain = config.publicDomain.endsWith('/') 
+      ? config.publicDomain.slice(0, -1) 
+      : config.publicDomain;
+      
+    // ensure domain starts with http
+    const fullDomain = domain.startsWith('http') ? domain : `https://${domain}`;
+    
+    const url = `${fullDomain}/${encodeURIComponent(key)}`;
+    
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedKey(key);
+      setTimeout(() => setCopiedKey(null), 2000);
+    } catch (e) {
+      console.error('Failed to copy', e);
+    }
+  };
+
   if (files.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-secondary)' }}>
@@ -139,6 +162,16 @@ export default function FileList({ files, config, onRefresh }: Props) {
                 <td style={{ color: 'var(--text-secondary)' }}>{formatDate(file.lastModified)}</td>
                 <td>
                   <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', opacity: loading === file.key ? 0.5 : 1, pointerEvents: loading === file.key ? 'none' : 'auto' }}>
+                    {config.publicDomain && (
+                      <button 
+                        className="btn-outline action-icon"
+                        style={{ border: 'none' }}
+                        onClick={() => handleCopyLink(file.key)}
+                        title={copiedKey === file.key ? t('copied') : t('copyLink')}
+                      >
+                        {copiedKey === file.key ? <Check size={16} color="var(--success)" /> : <LinkIcon size={16} />}
+                      </button>
+                    )}
                     <button 
                       className="btn-outline action-icon"
                       style={{ border: 'none' }}

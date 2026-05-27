@@ -4,6 +4,7 @@ export interface R2Config {
   bucket: string;
   endpoint: string;
   region?: string;
+  publicDomain?: string;
   sitePassword?: string;
 }
 

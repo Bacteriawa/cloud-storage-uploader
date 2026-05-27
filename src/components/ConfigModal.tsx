@@ -19,7 +19,8 @@ export default function ConfigModal({ isOpen, onClose, onSave }: Props) {
     secretAccessKey: '',
     bucket: '',
     endpoint: '',
-    region: 'auto'
+    region: 'auto',
+    publicDomain: ''
   });
 
   useEffect(() => {
@@ -137,6 +138,18 @@ export default function ConfigModal({ isOpen, onClose, onSave }: Props) {
                     onChange={e => setConfig(prev => ({ ...prev, endpoint: e.target.value }))}
                     className="input-field"
                     placeholder="https://<account_id>.r2.cloudflarestorage.com"
+                  />
+                </div>
+                <div style={{ gridColumn: 'span 2' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontSize: '14px', color: 'var(--text-secondary)' }}>
+                    <Cloud size={14} /> {t('publicDomain')}
+                  </label>
+                  <input
+                    type="text"
+                    value={config.publicDomain || ''}
+                    onChange={e => setConfig(prev => ({ ...prev, publicDomain: e.target.value }))}
+                    className="input-field"
+                    placeholder="https://pub-xxx.r2.dev (Optional)"
                   />
                 </div>
               </div>
