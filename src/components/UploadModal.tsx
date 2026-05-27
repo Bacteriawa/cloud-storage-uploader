@@ -21,6 +21,8 @@ interface UploadTask {
   progress: number;
   status: 'pending' | 'uploading' | 'success' | 'error';
   error?: string;
+  loadedSize?: number;
+  speed?: number;
 }
 
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
@@ -45,6 +47,11 @@ export default function UploadModal({ isOpen, onClose, config, onSuccess }: Prop
       const file = task.file;
       const key = file.name;
       const contentType = file.type || 'application/octet-stream';
+      const startTime = Date.now();
+
+      if (file.size === 0) {
+        throw new Error(t('emptyFileError') || 'Folders or 0-byte files are not supported');
+      }
 
       if (file.size <= CHUNK_SIZE) {
         // Simple upload
@@ -52,8 +59,11 @@ export default function UploadModal({ isOpen, onClose, config, onSuccess }: Prop
         await axios.put(url, file, {
           headers: { 'Content-Type': contentType },
           onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total || file.size));
-            setTasks(prev => prev.map(t => t.id === task.id ? { ...t, progress: percentCompleted } : t));
+            const loaded = progressEvent.loaded;
+            const percentCompleted = file.size === 0 ? 100 : Math.round((loaded * 100) / (progressEvent.total || file.size));
+            const elapsed = (Date.now() - startTime) / 1000;
+            const speed = elapsed > 0 ? loaded / elapsed : 0;
+            setTasks(prev => prev.map(t => t.id === task.id ? { ...t, progress: percentCompleted, loadedSize: loaded, speed } : t));
           }
         });
       } else {
@@ -74,8 +84,10 @@ export default function UploadModal({ isOpen, onClose, config, onSuccess }: Prop
             headers: { 'Content-Type': contentType },
             onUploadProgress: (progressEvent) => {
               const loadedTotal = start + progressEvent.loaded;
-              const percentCompleted = Math.round((loadedTotal * 100) / file.size);
-              setTasks(prev => prev.map(t => t.id === task.id ? { ...t, progress: percentCompleted } : t));
+              const percentCompleted = file.size === 0 ? 100 : Math.round((loadedTotal * 100) / file.size);
+              const elapsed = (Date.now() - startTime) / 1000;
+              const speed = elapsed > 0 ? loadedTotal / elapsed : 0;
+              setTasks(prev => prev.map(t => t.id === task.id ? { ...t, progress: percentCompleted, loadedSize: loadedTotal, speed } : t));
             }
           });
 
@@ -203,7 +215,14 @@ export default function UploadModal({ isOpen, onClose, config, onSuccess }: Prop
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                          {(task.file.size / (1024 * 1024)).toFixed(2)} MB
+                          {task.status === 'uploading' && task.loadedSize !== undefined ? (
+                            <>
+                              {(task.loadedSize / (1024 * 1024)).toFixed(2)} / {(task.file.size / (1024 * 1024)).toFixed(2)} MB
+                              {task.speed ? ` • ${(task.speed / (1024 * 1024)).toFixed(2)} MB/s` : ''}
+                            </>
+                          ) : (
+                            `${(task.file.size / (1024 * 1024)).toFixed(2)} MB`
+                          )}
                         </span>
                         {task.status === 'success' && <CheckCircle size={16} color="var(--success)" />}
                         {task.status === 'error' && <AlertCircle size={16} color="var(--danger)" />}

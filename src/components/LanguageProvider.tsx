@@ -47,6 +47,7 @@ const translations = {
     failedDelete: 'Failed to delete file',
     failedRename: 'Failed to rename file',
     failedDownload: 'Failed to get download URL',
+    emptyFileError: 'Folders or 0-byte files are not supported',
   },
   zh: {
     appTitle: '云存储上传工具',
@@ -81,6 +82,7 @@ const translations = {
     failedDelete: '删除文件失败',
     failedRename: '重命名文件失败',
     failedDownload: '获取下载链接失败',
+    emptyFileError: '不支持上传文件夹或 0 字节的空文件',
   }
 };
 
