@@ -3,6 +3,7 @@ export interface R2Config {
   secretAccessKey: string;
   bucket: string;
   endpoint: string;
+  region?: string;
   sitePassword?: string;
 }
 

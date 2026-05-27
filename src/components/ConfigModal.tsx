@@ -18,7 +18,8 @@ export default function ConfigModal({ isOpen, onClose, onSave }: Props) {
     accessKeyId: '',
     secretAccessKey: '',
     bucket: '',
-    endpoint: ''
+    endpoint: '',
+    region: 'auto'
   });
 
   useEffect(() => {
@@ -64,7 +65,7 @@ export default function ConfigModal({ isOpen, onClose, onSave }: Props) {
                   <Settings size={24} />
                 </div>
                 <h2 style={{ fontSize: '20px', fontWeight: 600 }}>
-                  {t('r2Settings')}
+                  {t('storageSettings')}
                 </h2>
               </div>
               <button type="button" onClick={onClose} className="btn-outline" style={{ border: 'none', padding: '8px' }}>
@@ -114,6 +115,18 @@ export default function ConfigModal({ isOpen, onClose, onSave }: Props) {
                   />
                 </div>
                 <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontSize: '14px', color: 'var(--text-secondary)' }}>
+                    <Cloud size={14} /> {t('region')}
+                  </label>
+                  <input
+                    type="text"
+                    value={config.region}
+                    onChange={e => setConfig(prev => ({ ...prev, region: e.target.value }))}
+                    className="input-field"
+                    placeholder="auto (or ap-guangzhou, etc)"
+                  />
+                </div>
+                <div style={{ gridColumn: 'span 2' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontSize: '14px', color: 'var(--text-secondary)' }}>
                     <Cloud size={14} /> {t('endpoint')}
                   </label>

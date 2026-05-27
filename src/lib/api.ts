@@ -7,6 +7,7 @@ function getHeaders(config: R2Config) {
     'X-R2-Secret-Key': config.secretAccessKey,
     'X-R2-Bucket': config.bucket,
     'X-R2-Endpoint': config.endpoint,
+    'X-S3-Region': config.region || 'auto',
   };
 }
 

@@ -4,13 +4,14 @@ export function getS3Client(req: Request) {
   const accessKeyId = req.headers.get('X-R2-Access-Key');
   const secretAccessKey = req.headers.get('X-R2-Secret-Key');
   const endpoint = req.headers.get('X-R2-Endpoint');
+  const region = req.headers.get('X-S3-Region') || 'auto';
 
   if (!accessKeyId || !secretAccessKey || !endpoint) {
     throw new Error('Missing R2 configuration headers');
   }
 
   return new S3Client({
-    region: 'auto',
+    region: region,
     endpoint: endpoint,
     credentials: {
       accessKeyId,
