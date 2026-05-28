@@ -190,7 +190,7 @@ export default function Home() {
         )}
       </div>
 
-      <footer style={{ marginTop: '40px', paddingBottom: '20px', textAlign: 'center' }}>
+      <footer style={{ marginTop: '40px', paddingBottom: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
         <a 
           href="https://github.com/Bacteriawa/cloud-storage-uploader" 
           target="_blank" 
@@ -210,6 +210,9 @@ export default function Home() {
         >
           <GithubIcon size={16} /> {t('openSource') || 'Open Source on GitHub'}
         </a>
+        <div style={{ fontSize: '12px', color: 'var(--text-secondary)', opacity: 0.5, fontFamily: 'monospace' }}>
+          Build: {process.env.NEXT_PUBLIC_COMMIT_HASH || 'dev'}
+        </div>
       </footer>
 
       <ConfigModal 
