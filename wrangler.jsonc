@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "main": ".open-next/worker.js",
-  "name": "r2-uploader",
+  "name": "cloud-storage-uploader",
   "compatibility_date": "2026-05-28",
   "compatibility_flags": [
     "nodejs_compat"
