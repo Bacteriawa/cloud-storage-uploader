@@ -172,6 +172,7 @@ export default function Home() {
       {config && (
         <UploadModal
           isOpen={isUploadOpen}
+          onOpen={() => setIsUploadOpen(true)}
           onClose={() => setIsUploadOpen(false)}
           config={config}
           onSuccess={() => loadData(config)}
