@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { LanguageProvider } from "@/components/LanguageProvider";
+import { ToastProvider } from "@/components/Toast";
 
 export const metadata: Metadata = {
   title: "R2 Uploader | Premium Cloud Storage",
@@ -16,7 +17,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <LanguageProvider>
-          {children}
+          <ToastProvider>
+            {children}
+          </ToastProvider>
         </LanguageProvider>
       </body>
     </html>

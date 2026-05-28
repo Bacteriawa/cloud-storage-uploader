@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ExternalLink, Loader2, Download } from 'lucide-react';
 import { R2Config } from '@/lib/config';
-import { getDownloadUrl } from '@/lib/api';
+import { getDownloadUrl, deleteFile } from '@/lib/api';
 import { useTranslation } from './LanguageProvider';
+import { useToast } from './Toast';
 
 interface Props {
   fileKey: string | null;
@@ -41,10 +42,18 @@ function getFileType(ext: string) {
 
 export default function PreviewModal({ fileKey, config, onClose }: Props) {
   const { t } = useTranslation();
+  const { showToast } = useToast();
   const [url, setUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [textContent, setTextContent] = useState<string | null>(null);
+
+  const handleCopyLink = () => {
+    if (url) {
+      navigator.clipboard.writeText(url);
+      showToast(t('copied'), 'success');
+    }
+  };
 
   useEffect(() => {
     if (fileKey && config) {
@@ -68,8 +77,9 @@ export default function PreviewModal({ fileKey, config, onClose }: Props) {
               // If fetch fails (CORS), fall back to download link
             }
           }
-        } catch (e) {
-          setError(t('failedDownload'));
+        } catch (err: any) {
+          setError(err.message || t('failedDownload'));
+          showToast(err.message || t('failedDownload'), 'error');
         } finally {
           setLoading(false);
         }

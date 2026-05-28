@@ -6,6 +6,7 @@ import { R2Config } from '@/lib/config';
 import { deleteFile, renameFile, getDownloadUrl } from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from './LanguageProvider';
+import { useToast } from './Toast';
 
 export interface R2File {
   key: string;
@@ -22,6 +23,7 @@ interface Props {
 
 export default function FileList({ files, config, onRefresh, onPreview }: Props) {
   const { t } = useTranslation();
+  const { showToast } = useToast();
   const [renamingKey, setRenamingKey] = useState<string | null>(null);
   const [newKey, setNewKey] = useState('');
   const [loading, setLoading] = useState<string | null>(null);
@@ -45,8 +47,9 @@ export default function FileList({ files, config, onRefresh, onPreview }: Props)
       setLoading(key);
       await deleteFile(config, key);
       onRefresh();
-    } catch (e) {
-      alert(t('failedDelete'));
+      showToast('File deleted successfully', 'success');
+    } catch (e: any) {
+      showToast(e.message || t('failedDelete'), 'error');
     } finally {
       setLoading(null);
     }
@@ -62,8 +65,9 @@ export default function FileList({ files, config, onRefresh, onPreview }: Props)
       await renameFile(config, oldKey, newKey);
       setRenamingKey(null);
       onRefresh();
-    } catch (e) {
-      alert(t('failedRename'));
+      showToast('File renamed successfully', 'success');
+    } catch (e: any) {
+      showToast(e.message || t('failedRename'), 'error');
     } finally {
       setLoading(null);
     }
@@ -79,8 +83,8 @@ export default function FileList({ files, config, onRefresh, onPreview }: Props)
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-    } catch (e) {
-      alert(t('failedDownload'));
+    } catch (e: any) {
+      showToast(e.message || t('failedDownload'), 'error');
     } finally {
       setLoading(null);
     }
@@ -102,8 +106,10 @@ export default function FileList({ files, config, onRefresh, onPreview }: Props)
     try {
       await navigator.clipboard.writeText(url);
       setCopiedKey(key);
+      showToast(t('copied'), 'success');
       setTimeout(() => setCopiedKey(null), 2000);
     } catch (e) {
+      showToast('Failed to copy to clipboard', 'error');
       console.error('Failed to copy', e);
     }
   };

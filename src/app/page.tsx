@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Settings, UploadCloud, RefreshCw, Folder, Moon, Sun, Database } from 'lucide-react';
+import { Settings, UploadCloud, RefreshCw, Folder, Moon, Sun, Database, AlertCircle } from 'lucide-react';
 import ConfigModal from '@/components/ConfigModal';
 import UploadModal from '@/components/UploadModal';
 import PreviewModal from '@/components/PreviewModal';
@@ -71,21 +71,24 @@ export default function Home() {
             <h1 style={{ fontSize: '28px', fontWeight: 700, margin: 0, letterSpacing: '-0.5px' }}>{t('appTitle')}</h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: '4px 0 0 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
               {config ? (
-                <>
-                  <span 
-                    title={latency ? `Latency: ${latency}ms` : 'Connecting...'}
-                    style={{ 
-                      width: '8px', 
-                      height: '8px', 
-                      borderRadius: '50%', 
-                      background: latency ? (latency < 300 ? 'var(--success)' : latency < 800 ? '#f59e0b' : 'var(--danger)') : 'var(--text-secondary)',
-                      boxShadow: latency && latency < 300 ? '0 0 8px var(--success)' : 'none'
-                    }} 
-                  />
-                  <Database size={14} />
-                  <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{config.bucket}</span> 
-                  {latency ? <span style={{ opacity: 0.7, fontSize: '12px' }}>{latency}ms</span> : ''}
-                </>
+                loading ? (
+                  <>
+                    <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} />
+                    <span>{t('connecting')}</span>
+                  </>
+                ) : error ? (
+                  <>
+                    <AlertCircle size={14} color="var(--danger)" />
+                    <span style={{ color: 'var(--danger)' }}>{t('connectionFailed')}</span>
+                  </>
+                ) : (
+                  <>
+                    <Database size={14} color="var(--success)" />
+                    <span>{t('connectedTo')}</span>
+                    <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{config.bucket}</span> 
+                    {latency ? <span style={{ opacity: 0.7, fontSize: '12px' }}>({latency}ms)</span> : ''}
+                  </>
+                )
               ) : (
                 <>
                   <Database size={14} style={{ opacity: 0.5 }} />

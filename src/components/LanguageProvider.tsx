@@ -48,6 +48,16 @@ const translations = {
     failedRename: 'Failed to rename file',
     failedDownload: 'Failed to get download URL',
     emptyFileError: 'Folders or 0-byte files are not supported',
+    connecting: 'Connecting...',
+    connectionFailed: 'Connection failed',
+    paused: ' (Paused)',
+    waitingForFile: ' (Waiting for file)',
+    uploadingCount: ' uploading...',
+    viewDetails: 'View',
+    selectToResume: 'Select file to resume',
+    cancel: 'Cancel',
+    resume: 'Resume',
+    pause: 'Pause',
   },
   zh: {
     appTitle: '云存储上传工具',
@@ -83,6 +93,16 @@ const translations = {
     failedRename: '重命名文件失败',
     failedDownload: '获取下载链接失败',
     emptyFileError: '不支持上传文件夹或 0 字节的空文件',
+    connecting: '连接中...',
+    connectionFailed: '连接失败',
+    paused: ' (已暂停)',
+    waitingForFile: ' (等待选中文件)',
+    uploadingCount: ' 个文件上传中...',
+    viewDetails: '查看',
+    selectToResume: '选择文件继续',
+    cancel: '取消',
+    resume: '继续',
+    pause: '暂停',
   }
 };
 

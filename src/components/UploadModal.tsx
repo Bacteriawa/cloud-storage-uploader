@@ -7,6 +7,7 @@ import { R2Config } from '@/lib/config';
 import { getPresignedUrl, initMultipartUpload, getMultipartPresignedUrl, completeMultipartUpload } from '@/lib/api';
 import axios from 'axios';
 import { useTranslation } from './LanguageProvider';
+import { useToast } from './Toast';
 
 interface Props {
   isOpen: boolean;
@@ -43,6 +44,7 @@ const getFileId = (file: File | GhostFile) => `${file.name}_${file.size}_${file.
 
 export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess }: Props) {
   const { t } = useTranslation();
+  const { showToast } = useToast();
   const [tasks, setTasks] = useState<UploadTask[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem(`r2_tasks_${config.bucket}`);
@@ -114,6 +116,7 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
       const startTime = Date.now();
 
       if (file.size === 0) {
+        showToast(t('emptyFileError') || 'Folders or 0-byte files are not supported', 'error');
         throw new Error(t('emptyFileError') || 'Folders or 0-byte files are not supported');
       }
 
@@ -217,7 +220,7 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
     if (!task) return;
     
     if (file.name !== task.file.name || file.size !== task.file.size) {
-       alert(t('fileMismatch') || 'Please select the exact same file to resume.');
+       showToast(t('fileMismatch') || 'Please select the exact same file to resume.', 'error');
        e.target.value = '';
        return;
     }
@@ -376,8 +379,8 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
                               <>
                                 {(task.loadedSize / (1024 * 1024)).toFixed(2)} / {(task.file.size / (1024 * 1024)).toFixed(2)} MB
                                 {task.status === 'uploading' && task.speed ? ` • ${(task.speed / (1024 * 1024)).toFixed(2)} MB/s` : ''}
-                                {task.status === 'paused' ? ' (Paused)' : ''}
-                                {task.status === 'ghost' ? ' (Waiting for file)' : ''}
+                                {task.status === 'paused' ? t('paused') : ''}
+                                {task.status === 'ghost' ? t('waitingForFile') : ''}
                               </>
                             ) : (
                               `${(task.file.size / (1024 * 1024)).toFixed(2)} MB`
@@ -385,25 +388,25 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
                           </span>
                           
                           {task.status === 'uploading' && task.file.size > CHUNK_SIZE && (
-                            <button className="btn-outline action-icon" onClick={() => handlePause(task.id)} title="Pause">
+                            <button className="btn-outline action-icon" onClick={() => handlePause(task.id)} title={t('pause')}>
                               <Pause size={16} />
                             </button>
                           )}
                           {task.status === 'paused' && !('isGhost' in task.file) && (
-                            <button className="btn-outline action-icon" onClick={() => handleResume(task.id)} title="Resume">
+                            <button className="btn-outline action-icon" onClick={() => handleResume(task.id)} title={t('resume')}>
                               <Play size={16} />
                             </button>
                           )}
                           {task.status === 'ghost' && (
                             <>
                               <input type="file" id={`ghost-${task.id}`} style={{ display: 'none' }} onChange={(e) => handleGhostSelect(e, task.id)} />
-                              <button className="btn-outline action-icon" onClick={() => document.getElementById(`ghost-${task.id}`)?.click()} title="Select file to resume">
+                              <button className="btn-outline action-icon" onClick={() => document.getElementById(`ghost-${task.id}`)?.click()} title={t('selectToResume')}>
                                 <Play size={16} />
                               </button>
                             </>
                           )}
                           {(task.status === 'uploading' || task.status === 'paused' || task.status === 'pending' || task.status === 'error' || task.status === 'ghost') && (
-                            <button className="btn-outline action-icon delete" onClick={() => handleCancel(task.id)} title="Cancel">
+                            <button className="btn-outline action-icon delete" onClick={() => handleCancel(task.id)} title={t('cancel')}>
                               <X size={16} />
                             </button>
                           )}
@@ -466,11 +469,8 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <UploadCloud size={18} color="var(--accent)" />
                 <span style={{ fontSize: '14px', fontWeight: 600 }}>
-                  {tasks.filter(t => t.status === 'uploading' || t.status === 'pending').length} uploading...
+                  {tasks.filter(t => t.status === 'uploading' || t.status === 'pending').length}{t('uploadingCount')}
                 </span>
-              </div>
-              <div style={{ background: 'var(--accent)', color: 'white', fontSize: '12px', padding: '2px 8px', borderRadius: '10px' }}>
-                View
               </div>
             </div>
             
