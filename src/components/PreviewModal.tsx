@@ -199,12 +199,12 @@ export default function PreviewModal({ fileKey, config, onClose }: Props) {
             </h2>
             <div style={{ display: 'flex', gap: '8px' }}>
               {url && (
-                <a href={url} target="_blank" rel="noreferrer" className="btn-outline action-icon" style={{ padding: '8px', border: 'none' }} title="Open in new tab">
+                <a href={url} target="_blank" rel="noreferrer" className="action-icon" style={{ textDecoration: 'none', background: 'transparent' }} title="Open in new tab">
                   <ExternalLink size={20} />
                 </a>
               )}
-              <button onClick={onClose} className="btn-outline action-icon" style={{ padding: '8px', border: 'none' }}>
-                <X size={20} />
+              <button onClick={onClose} className="action-icon" style={{ border: 'none', background: 'transparent' }}>
+                <X size={24} />
               </button>
             </div>
           </div>

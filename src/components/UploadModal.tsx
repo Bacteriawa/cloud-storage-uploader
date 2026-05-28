@@ -322,8 +322,8 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
                 </div>
                 <h2 style={{ fontSize: '20px', fontWeight: 600 }}>{t('upload')}</h2>
               </div>
-              <button onClick={onClose} className="btn-outline" style={{ border: 'none', padding: '8px' }}>
-                <X size={20} />
+              <button onClick={onClose} className="action-icon" style={{ border: 'none', background: 'transparent' }}>
+                <X size={24} />
               </button>
             </div>
 
@@ -355,7 +355,7 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
                 </div>
               ) : (
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-                  <button className="btn-outline" onClick={() => setShowDropzone(true)} style={{ fontSize: '14px', padding: '6px 12px' }}>
+                  <button className="btn btn-outline" onClick={() => setShowDropzone(true)}>
                     + {t('upload')}
                   </button>
                 </div>

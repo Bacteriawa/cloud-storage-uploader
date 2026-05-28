@@ -69,8 +69,8 @@ export default function ConfigModal({ isOpen, onClose, onSave }: Props) {
                   {t('storageSettings')}
                 </h2>
               </div>
-              <button type="button" onClick={onClose} className="btn-outline" style={{ border: 'none', padding: '8px' }}>
-                <X size={20} />
+              <button type="button" onClick={onClose} className="action-icon" style={{ border: 'none', background: 'transparent' }}>
+                <X size={24} />
               </button>
             </div>
 

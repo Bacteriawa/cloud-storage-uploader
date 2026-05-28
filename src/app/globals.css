@@ -62,11 +62,11 @@ body {
 }
 
 .btn {
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: 500;
+  padding: 10px 24px;
+  border-radius: 12px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border: none;
   display: inline-flex;
   align-items: center;
@@ -78,35 +78,44 @@ body {
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .btn-primary {
   background: var(--accent);
   color: white;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
 .btn-primary:hover:not(:disabled) {
   background: var(--accent-hover);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
 }
 
 .btn-danger {
   background: var(--danger);
   color: white;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 .btn-danger:hover:not(:disabled) {
   background: var(--danger-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
 }
 
 .btn-outline {
-  background: transparent;
+  background: var(--bg-secondary);
   border: 1px solid var(--glass-border);
   color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .btn-outline:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(120, 120, 120, 0.1);
+  transform: translateY(-1px);
 }
 
 .modal-overlay {
@@ -191,16 +200,23 @@ tr:hover td {
 .action-icon {
   color: var(--text-secondary);
   cursor: pointer;
-  transition: color 0.2s;
-  padding: 4px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 8px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .action-icon:hover {
   color: var(--text-primary);
+  background: rgba(120, 120, 120, 0.1);
+  transform: scale(1.05);
 }
 
 .action-icon.delete:hover {
   color: var(--danger);
+  background: rgba(239, 68, 68, 0.1);
 }
 
 .filename-link {
