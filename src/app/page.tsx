@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Settings, UploadCloud, RefreshCw, Folder, Moon, Sun, Database, AlertCircle } from 'lucide-react';
+import { Settings, UploadCloud, RefreshCw, Folder, Moon, Sun, Database, AlertCircle, BarChart2 } from 'lucide-react';
 import ConfigModal from '@/components/ConfigModal';
 import UploadModal from '@/components/UploadModal';
 import PreviewModal from '@/components/PreviewModal';
@@ -9,6 +9,7 @@ import FileList, { R2File } from '@/components/FileList';
 import { R2Config, hasConfig, loadConfig } from '@/lib/config';
 import { listFiles, checkAuth } from '@/lib/api';
 import { useTranslation } from '@/components/LanguageProvider';
+import StatsView from '@/components/StatsView';
 
 export default function Home() {
   const [isConfigOpen, setIsConfigOpen] = useState(false);
@@ -18,9 +19,18 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [latency, setLatency] = useState<number | null>(null);
+  const [currentView, setCurrentView] = useState<'files' | 'stats'>('files');
   const [isClient, setIsClient] = useState(false);
   const [previewKey, setPreviewKey] = useState<string | null>(null);
   const { t, lang, setLang, theme, setTheme } = useTranslation();
+
+  const formatSize = (bytes: number) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
 
   useEffect(() => {
     setIsClient(true);
@@ -125,6 +135,12 @@ export default function Home() {
             <>
               <button 
                 className="btn btn-outline"
+                onClick={() => setCurrentView(currentView === 'stats' ? 'files' : 'stats')}
+              >
+                <BarChart2 size={18} /> {currentView === 'stats' ? t('back') || 'Back' : t('dashboard') || 'Dashboard'}
+              </button>
+              <button 
+                className="btn btn-outline"
                 onClick={() => loadData(config)}
                 disabled={loading}
               >
@@ -154,7 +170,11 @@ export default function Home() {
             </button>
           </div>
         ) : config ? (
-          <FileList files={files} config={config} onRefresh={() => loadData(config)} onPreview={(key) => setPreviewKey(key)} />
+          currentView === 'stats' ? (
+            <StatsView files={files} onBack={() => setCurrentView('files')} />
+          ) : (
+            <FileList files={files} config={config} onRefresh={() => loadData(config)} onPreview={(key) => setPreviewKey(key)} />
+          )
         ) : (
           <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-secondary)' }}>
             <Settings size={48} style={{ margin: '0 auto 16px', opacity: 0.2 }} />

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { File as FileIcon, Trash2, Edit2, Download, Link as LinkIcon, Check, Eye } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { File as FileIcon, Trash2, Edit2, Download, Link as LinkIcon, Check, Eye, Search } from 'lucide-react';
 import { R2Config } from '@/lib/config';
 import { deleteFile, renameFile, getDownloadUrl } from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -28,6 +28,13 @@ export default function FileList({ files, config, onRefresh, onPreview }: Props)
   const [newKey, setNewKey] = useState('');
   const [loading, setLoading] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredFiles = useMemo(() => {
+    if (!searchQuery) return files;
+    const lowerQuery = searchQuery.toLowerCase();
+    return files.filter(f => f.key.toLowerCase().includes(lowerQuery));
+  }, [files, searchQuery]);
 
   const formatSize = (bytes: number) => {
     if (bytes === 0) return '0 B';
@@ -47,7 +54,7 @@ export default function FileList({ files, config, onRefresh, onPreview }: Props)
       setLoading(key);
       await deleteFile(config, key);
       onRefresh();
-      showToast('File deleted successfully', 'success');
+      showToast(t('deleteSuccess') || 'File deleted successfully', 'success');
     } catch (e: any) {
       showToast(e.message || t('failedDelete'), 'error');
     } finally {
@@ -65,7 +72,7 @@ export default function FileList({ files, config, onRefresh, onPreview }: Props)
       await renameFile(config, oldKey, newKey);
       setRenamingKey(null);
       onRefresh();
-      showToast('File renamed successfully', 'success');
+      showToast(t('renameSuccess') || 'File renamed successfully', 'success');
     } catch (e: any) {
       showToast(e.message || t('failedRename'), 'error');
     } finally {
@@ -109,7 +116,7 @@ export default function FileList({ files, config, onRefresh, onPreview }: Props)
       showToast(t('copied'), 'success');
       setTimeout(() => setCopiedKey(null), 2000);
     } catch (e) {
-      showToast('Failed to copy to clipboard', 'error');
+      showToast(t('copyError') || 'Failed to copy to clipboard', 'error');
       console.error('Failed to copy', e);
     }
   };
@@ -124,9 +131,28 @@ export default function FileList({ files, config, onRefresh, onPreview }: Props)
   }
 
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table>
-        <thead>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {files.length > 0 && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 8px' }}>
+          <div style={{ position: 'relative', width: '300px' }}>
+            <Search size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+            <input
+              type="text"
+              className="input-field"
+              style={{ paddingLeft: '40px', paddingRight: '16px', borderRadius: '12px', background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}
+              placeholder={t('searchFiles') || 'Search files...'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 500 }}>
+            {filteredFiles.length} {t('filesCount') || 'files'}
+          </div>
+        </div>
+      )}
+      <div style={{ overflowX: 'auto' }}>
+        <table>
+          <thead>
           <tr>
             <th>{t('name')}</th>
             <th>{t('size')}</th>
@@ -136,7 +162,7 @@ export default function FileList({ files, config, onRefresh, onPreview }: Props)
         </thead>
         <tbody>
           <AnimatePresence>
-            {files.map(file => (
+            {filteredFiles.map(file => (
               <motion.tr 
                 key={file.key}
                 initial={{ opacity: 0, y: -10 }}
@@ -217,9 +243,17 @@ export default function FileList({ files, config, onRefresh, onPreview }: Props)
                 </td>
               </motion.tr>
             ))}
+            {filteredFiles.length === 0 && searchQuery && (
+              <tr>
+                <td colSpan={4} style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
+                  No files match your search.
+                </td>
+              </tr>
+            )}
           </AnimatePresence>
         </tbody>
       </table>
     </div>
+  </div>
   );
 }
