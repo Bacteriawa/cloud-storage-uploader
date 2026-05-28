@@ -50,3 +50,13 @@ next-env.d.ts
 *.sw?
 tmp/
 scratch/
+
+# OpenNext
+.open-next
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+
+!.env.example
