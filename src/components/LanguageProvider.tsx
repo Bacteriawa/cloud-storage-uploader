@@ -15,7 +15,7 @@ interface I18nContextType {
 
 const translations = {
   en: {
-    appTitle: 'Cloud Uploader',
+    appTitle: 'Cloud Storage Uploader',
     connectedTo: 'Connected to',
     notConnected: 'Not connected',
     settings: 'Settings',
@@ -70,6 +70,7 @@ const translations = {
     deleteSuccess: 'File deleted successfully',
     renameSuccess: 'File renamed successfully',
     copyError: 'Failed to copy to clipboard',
+    openSource: 'Open Source on GitHub',
   },
   zh: {
     appTitle: '云存储上传工具',
@@ -127,6 +128,7 @@ const translations = {
     deleteSuccess: '文件删除成功',
     renameSuccess: '文件重命名成功',
     copyError: '复制到剪贴板失败',
+    openSource: '在 GitHub 上查看开源代码',
   }
 };
 

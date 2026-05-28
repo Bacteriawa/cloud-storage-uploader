@@ -11,6 +11,13 @@ import { listFiles, checkAuth } from '@/lib/api';
 import { useTranslation } from '@/components/LanguageProvider';
 import StatsView from '@/components/StatsView';
 
+const GithubIcon = ({ size = 24 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.24c3-.3 6-1.5 6-6.76a5.5 5.5 0 0 0-1.5-3.8 5.5 5.5 0 0 0-.15-3.8s-1.2-.4-3.9 1.4a13.3 13.3 0 0 0-7 0c-2.7-1.8-3.9-1.4-3.9-1.4a5.5 5.5 0 0 0-.15 3.8 5.5 5.5 0 0 0-1.5 3.8c0 5.2 3 6.4 6 6.76a4.8 4.8 0 0 0-1 3.24v4"></path>
+    <path d="M9 18c-4.51 2-5-2-7-2"></path>
+  </svg>
+);
+
 export default function Home() {
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
@@ -182,6 +189,28 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      <footer style={{ marginTop: '40px', paddingBottom: '20px', textAlign: 'center' }}>
+        <a 
+          href="https://github.com/Bacteriawa/cloud-storage-uploader" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          style={{ 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            gap: '8px', 
+            color: 'var(--text-secondary)', 
+            textDecoration: 'none',
+            fontSize: '13px',
+            opacity: 0.7,
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.7'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+        >
+          <GithubIcon size={16} /> {t('openSource') || 'Open Source on GitHub'}
+        </a>
+      </footer>
 
       <ConfigModal 
         isOpen={isConfigOpen}
