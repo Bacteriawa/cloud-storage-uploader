@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Settings, UploadCloud, RefreshCw, Moon, Sun, Database, AlertCircle, BarChart2, FolderPlus } from 'lucide-react';
+import { Settings, RefreshCw, Moon, Sun, Database, AlertCircle, BarChart2 } from 'lucide-react';
 import ConfigModal from '@/components/ConfigModal';
 import UploadModal from '@/components/UploadModal';
 import PreviewModal from '@/components/PreviewModal';
@@ -81,7 +81,7 @@ export default function Home() {
   if (!isClient) return null;
 
   return (
-    <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px' }}>
+    <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div>
@@ -138,32 +138,13 @@ export default function Home() {
             <Settings size={18} /> {t('settings')}
           </button>
           
-          {config && (
+          {config && !error && files.length > 0 && (
             <>
               <button 
                 className="btn btn-outline"
                 onClick={() => setCurrentView(currentView === 'stats' ? 'files' : 'stats')}
               >
                 <BarChart2 size={18} /> {currentView === 'stats' ? t('back') || 'Back' : t('dashboard') || 'Dashboard'}
-              </button>
-              <button 
-                className="btn btn-outline"
-                onClick={() => loadData(config)}
-                disabled={loading}
-              >
-                <RefreshCw size={18} className={loading ? 'animate-spin' : ''} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} /> 
-              </button>
-              <button 
-                className="btn btn-outline"
-                onClick={() => setIsCreateFolderOpen(true)}
-              >
-                <FolderPlus size={18} /> {t('createFolder') || 'Create Folder'}
-              </button>
-              <button 
-                className="btn btn-primary"
-                onClick={() => setIsUploadOpen(true)}
-              >
-                <UploadCloud size={18} /> {t('upload')}
               </button>
             </>
           )}
@@ -193,6 +174,9 @@ export default function Home() {
               setCurrentPrefix={setCurrentPrefix}
               onRefresh={() => loadData(config)} 
               onPreview={(key) => setPreviewKey(key)} 
+              onUploadClick={() => setIsUploadOpen(true)}
+              onCreateFolderClick={() => setIsCreateFolderOpen(true)}
+              isLoading={loading}
             />
           )
         ) : (
@@ -203,7 +187,7 @@ export default function Home() {
         )}
       </div>
 
-      <footer style={{ marginTop: '40px', paddingBottom: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+      <footer style={{ marginTop: 'auto', paddingTop: '40px', paddingBottom: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
         <a 
           href="https://github.com/Bacteriawa/cloud-storage-uploader" 
           target="_blank" 

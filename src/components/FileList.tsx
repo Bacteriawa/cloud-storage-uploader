@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { File as FileIcon, Trash2, Edit2, Download, Link as LinkIcon, Check, Search, X, Folder, ArrowLeft, ChevronRight } from 'lucide-react';
+import { File as FileIcon, Trash2, Edit2, Download, Link as LinkIcon, Check, Search, X, Folder, ArrowLeft, UploadCloud, RefreshCw, FolderPlus, Database } from 'lucide-react';
 import { R2Config } from '@/lib/config';
 import { deleteFile, renameFile, getDownloadUrl } from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,9 +22,12 @@ interface Props {
   setCurrentPrefix: (prefix: string) => void;
   onRefresh: () => void;
   onPreview: (key: string) => void;
+  onUploadClick: () => void;
+  onCreateFolderClick: () => void;
+  isLoading: boolean;
 }
 
-export default function FileList({ files, config, currentPrefix, setCurrentPrefix, onRefresh, onPreview }: Props) {
+export default function FileList({ files, config, currentPrefix, setCurrentPrefix, onRefresh, onPreview, onUploadClick, onCreateFolderClick, isLoading }: Props) {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const [renamingKey, setRenamingKey] = useState<string | null>(null);
@@ -36,6 +39,10 @@ export default function FileList({ files, config, currentPrefix, setCurrentPrefi
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [isBatchDeleting, setIsBatchDeleting] = useState(false);
   const [showBatchConfirm, setShowBatchConfirm] = useState(false);
+
+  const handleSetPrefix = (newPrefix: string) => {
+    setCurrentPrefix(newPrefix);
+  };
 
   const filteredFiles = useMemo(() => {
     if (searchQuery) {
@@ -60,9 +67,15 @@ export default function FileList({ files, config, currentPrefix, setCurrentPrefi
         if (!items.has(folderKey)) {
           items.set(folderKey, {
             key: folderKey,
-            size: 0,
+            size: f.size,
             lastModified: f.lastModified
           });
+        } else {
+          const existing = items.get(folderKey)!;
+          existing.size += f.size;
+          if (new Date(f.lastModified) > new Date(existing.lastModified)) {
+            existing.lastModified = f.lastModified;
+          }
         }
       }
     }
@@ -191,19 +204,9 @@ export default function FileList({ files, config, currentPrefix, setCurrentPrefi
     }
   };
 
-  if (files.length === 0) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', flex: 1, minHeight: '300px', color: 'var(--text-secondary)' }}>
-        <FileIcon size={48} style={{ margin: '0 auto 16px', opacity: 0.2 }} />
-        <p>{t('noFiles')}</p>
-      </div>
-    );
-  }
-
   return (
     <>
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      {files.length > 0 && (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 8px' }}>
           <div style={{ position: 'relative', width: '300px' }}>
             <Search size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
@@ -226,30 +229,104 @@ export default function FileList({ files, config, currentPrefix, setCurrentPrefi
                 </button>
               </>
             ) : (
-              <>{filteredFiles.length} {t('filesCount') || 'files'}</>
+              <>
+                <span style={{ marginRight: '4px' }}>{filteredFiles.length} {t('filesCount') || 'files'}</span>
+                <button 
+                  className="btn btn-outline action-icon"
+                  onClick={onRefresh}
+                  disabled={isLoading}
+                  style={{ padding: '10px', borderRadius: '10px', border: '1px solid var(--glass-border)' }}
+                  title={t('refresh') || 'Refresh'}
+                >
+                  <RefreshCw size={20} className={isLoading ? 'animate-spin' : ''} style={{ animation: isLoading ? 'spin 1s linear infinite' : 'none' }} /> 
+                </button>
+                <button 
+                  className="btn btn-outline"
+                  onClick={onCreateFolderClick}
+                  style={{ padding: '10px 20px', fontSize: '15px', borderRadius: '10px', border: '1px solid var(--glass-border)' }}
+                >
+                  <FolderPlus size={18} style={{ marginRight: '6px' }} /> {t('createFolder') || 'Create Folder'}
+                </button>
+                <button 
+                  className="btn btn-primary"
+                  onClick={onUploadClick}
+                  style={{ padding: '10px 20px', fontSize: '15px', borderRadius: '10px' }}
+                >
+                  <UploadCloud size={18} style={{ marginRight: '6px' }} /> {t('upload') || 'Upload'}
+                </button>
+              </>
             )}
           </div>
         </div>
-      )}
 
       {currentPrefix && !searchQuery && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px', background: 'var(--bg-secondary)', borderRadius: '12px', margin: '0 8px', border: '1px solid var(--glass-border)' }}>
-          <button className="btn-outline action-icon" onClick={() => {
-            const parts = currentPrefix.split('/').filter(Boolean);
-            parts.pop();
-            setCurrentPrefix(parts.length ? parts.join('/') + '/' : '');
-          }} style={{ padding: '6px', border: 'none', background: 'var(--bg-primary)' }}>
+          <button 
+            className="btn-outline action-icon" 
+            onClick={() => {
+              if (!currentPrefix) return;
+              const parts = currentPrefix.split('/').filter(Boolean);
+              parts.pop();
+              handleSetPrefix(parts.length ? parts.join('/') + '/' : '');
+            }} 
+            disabled={!currentPrefix}
+            style={{ 
+              padding: '6px', 
+              border: 'none', 
+              background: 'var(--bg-primary)', 
+              opacity: currentPrefix ? 1 : 0.3, 
+              cursor: currentPrefix ? 'pointer' : 'default' 
+            }}
+          >
             <ArrowLeft size={16} />
           </button>
-          <span style={{ fontFamily: 'monospace', fontSize: '14px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Folder size={14} color="var(--accent)" />
-            /{currentPrefix}
+          <span style={{ fontSize: '15px', fontWeight: 500, color: 'var(--text-primary)', display: 'flex', alignItems: 'center' }}>
+            <Database size={16} color="var(--accent)" style={{ marginRight: '6px' }} />
+            <span 
+              onClick={() => handleSetPrefix('')}
+              style={{ color: currentPrefix ? 'var(--text-secondary)' : 'var(--text-primary)', cursor: currentPrefix ? 'pointer' : 'default', transition: 'color 0.2s' }}
+              onMouseEnter={(e) => { if (currentPrefix) e.currentTarget.style.color = 'var(--text-primary)'; }}
+              onMouseLeave={(e) => { if (currentPrefix) e.currentTarget.style.color = 'var(--text-secondary)'; }}
+            >
+              {config.bucket}
+            </span>
+            {currentPrefix.split('/').filter(Boolean).map((part, index, arr) => {
+              const prefixToHere = arr.slice(0, index + 1).join('/') + '/';
+              const isLast = index === arr.length - 1;
+              return (
+                <span key={prefixToHere} style={{ display: 'flex', alignItems: 'center' }}>
+                  <span style={{ color: 'var(--text-secondary)', opacity: 0.5, margin: '0 2px' }}>/</span>
+                  <span 
+                    onClick={() => !isLast && handleSetPrefix(prefixToHere)}
+                    style={{ color: isLast ? 'var(--text-primary)' : 'var(--text-secondary)', cursor: isLast ? 'default' : 'pointer', transition: 'color 0.2s' }}
+                    onMouseEnter={(e) => { if (!isLast) e.currentTarget.style.color = 'var(--text-primary)'; }}
+                    onMouseLeave={(e) => { if (!isLast) e.currentTarget.style.color = 'var(--text-secondary)'; }}
+                  >
+                    {part}
+                  </span>
+                </span>
+              );
+            })}
           </span>
         </div>
       )}
 
-      <div style={{ overflowX: 'auto' }}>
-        <table>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentPrefix + searchQuery}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15, ease: "easeOut" }}
+        >
+          {filteredFiles.length === 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', flex: 1, minHeight: '300px', color: 'var(--text-secondary)' }}>
+              <FileIcon size={48} style={{ margin: '0 auto 16px', opacity: 0.2 }} />
+              <p>{files.length === 0 ? t('noFiles') : 'No results found'}</p>
+            </div>
+          ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table>
           <thead>
           <tr>
             <th style={{ width: '40px', textAlign: 'center' }}>
@@ -280,7 +357,7 @@ export default function FileList({ files, config, currentPrefix, setCurrentPrefi
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
+                transition={{ duration: 0.1 }}
               >
                 <td style={{ textAlign: 'center' }}>
                   <input 
@@ -315,7 +392,7 @@ export default function FileList({ files, config, currentPrefix, setCurrentPrefi
                       <span 
                         onClick={() => {
                           if (file.key.endsWith('/')) {
-                            setCurrentPrefix(file.key);
+                            handleSetPrefix(file.key);
                             setSearchQuery('');
                           } else {
                             onPreview(file.key);
@@ -325,7 +402,10 @@ export default function FileList({ files, config, currentPrefix, setCurrentPrefi
                         className={file.key.endsWith('/') ? "filename-link folder" : "filename-link"}
                         title={file.key.endsWith('/') ? (t('enterFolder') || 'Enter folder') : (t('preview') || 'Click to preview')}
                       >
-                        {searchQuery ? file.key : file.key.substring(currentPrefix.length)}
+                        {(() => {
+                          const displayName = searchQuery ? file.key : file.key.substring(currentPrefix.length);
+                          return file.key.endsWith('/') ? displayName.slice(0, -1) : displayName;
+                        })()}
                       </span>
                     )}
                   </div>
@@ -390,6 +470,9 @@ export default function FileList({ files, config, currentPrefix, setCurrentPrefi
         </tbody>
       </table>
     </div>
+    )}
+        </motion.div>
+      </AnimatePresence>
     </div>
     <ConfirmModal
       isOpen={!!fileToDelete}
