@@ -37,6 +37,18 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  overflow-y: scroll; /* Force vertical scrollbar to prevent layout shifts */
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  transition: background-color 0.3s ease;
+  min-height: 100vh;
+}
+
 /* Mobile Responsiveness & Safe Areas */
 main {
   padding-top: calc(40px + var(--safe-area-inset-top)) !important;

@@ -81,7 +81,7 @@ export default function Home() {
   if (!isClient) return null;
 
   return (
-    <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div>
@@ -187,7 +187,7 @@ export default function Home() {
         )}
       </div>
 
-      <footer style={{ marginTop: 'auto', paddingTop: '40px', paddingBottom: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+      <footer style={{ marginTop: '40px', paddingBottom: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
         <a 
           href="https://github.com/Bacteriawa/cloud-storage-uploader" 
           target="_blank" 
