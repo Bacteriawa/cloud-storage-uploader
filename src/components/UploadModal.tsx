@@ -16,6 +16,7 @@ interface Props {
   onOpen: () => void;
   onClose: () => void;
   config: R2Config;
+  currentPrefix: string;
   onSuccess: () => void;
 }
 
@@ -45,7 +46,7 @@ const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
 
 const getFileId = (file: File | GhostFile) => `${file.name}_${file.size}_${file.lastModified}`;
 
-export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess }: Props) {
+export default function UploadModal({ isOpen, onOpen, onClose, config, currentPrefix, onSuccess }: Props) {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const [tasks, setTasks] = useState<UploadTask[]>(() => {
@@ -119,7 +120,7 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
     setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: 'uploading', abortController, error: undefined } : t));
 
     try {
-      const key = file.name;
+      const fullKey = currentPrefix + file.name;
       const contentType = file.type || 'application/octet-stream';
       const startTime = Date.now();
 
@@ -130,7 +131,7 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
 
       if (file.size <= CHUNK_SIZE) {
         // Simple upload (Not resumable)
-        const url = await getPresignedUrl(config, key, contentType);
+        const url = await getPresignedUrl(config, fullKey, contentType);
         await axios.put(url, file, {
           headers: { 'Content-Type': contentType },
           signal: abortController.signal,
@@ -149,7 +150,7 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
         const cacheKey = `csu_upload_${config.bucket}_${getFileId(file)}`;
 
         if (!uploadId) {
-          uploadId = await initMultipartUpload(config, key, contentType);
+          uploadId = await initMultipartUpload(config, fullKey, contentType);
           localStorage.setItem(cacheKey, JSON.stringify({ uploadId, parts: [] }));
           setTasks(prev => prev.map(t => t.id === taskId ? { ...t, uploadId } : t));
         }
@@ -175,7 +176,7 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
             const end = Math.min(start + CHUNK_SIZE, file.size);
             const chunk = file.slice(start, end);
 
-            const url = await getMultipartPresignedUrl(config, key, uploadId, partNumber);
+            const url = await getMultipartPresignedUrl(config, fullKey, uploadId!, partNumber);
             
             const res = await axios.put(url, chunk, {
               headers: { 'Content-Type': contentType },
@@ -201,7 +202,7 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
         
         await Promise.all(uploadPromises);
 
-        await completeMultipartUpload(config, key, uploadId, parts);
+        await completeMultipartUpload(config, fullKey, uploadId, parts);
         localStorage.removeItem(cacheKey);
       }
 

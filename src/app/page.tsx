@@ -2,11 +2,12 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Settings, UploadCloud, RefreshCw, Moon, Sun, Database, AlertCircle, BarChart2 } from 'lucide-react';
+import { Settings, UploadCloud, RefreshCw, Moon, Sun, Database, AlertCircle, BarChart2, FolderPlus } from 'lucide-react';
 import ConfigModal from '@/components/ConfigModal';
 import UploadModal from '@/components/UploadModal';
 import PreviewModal from '@/components/PreviewModal';
 import FileList, { R2File } from '@/components/FileList';
+import CreateFolderModal from '@/components/CreateFolderModal';
 import { R2Config, hasConfig, loadConfig } from '@/lib/config';
 import { listFiles, checkAuth } from '@/lib/api';
 import { useTranslation } from '@/components/LanguageProvider';
@@ -22,6 +23,8 @@ const GithubIcon = ({ size = 24 }: { size?: number }) => (
 export default function Home() {
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
+  const [currentPrefix, setCurrentPrefix] = useState('');
   const [config, setConfig] = useState<R2Config | null>(null);
   const [files, setFiles] = useState<R2File[]>([]);
   const [loading, setLoading] = useState(true);
@@ -151,6 +154,12 @@ export default function Home() {
                 <RefreshCw size={18} className={loading ? 'animate-spin' : ''} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} /> 
               </button>
               <button 
+                className="btn btn-outline"
+                onClick={() => setIsCreateFolderOpen(true)}
+              >
+                <FolderPlus size={18} /> {t('createFolder') || 'Create Folder'}
+              </button>
+              <button 
                 className="btn btn-primary"
                 onClick={() => setIsUploadOpen(true)}
               >
@@ -177,7 +186,14 @@ export default function Home() {
           currentView === 'stats' ? (
             <StatsView files={files} onBack={() => setCurrentView('files')} />
           ) : (
-            <FileList files={files} config={config} onRefresh={() => loadData(config)} onPreview={(key) => setPreviewKey(key)} />
+            <FileList 
+              files={files} 
+              config={config} 
+              currentPrefix={currentPrefix}
+              setCurrentPrefix={setCurrentPrefix}
+              onRefresh={() => loadData(config)} 
+              onPreview={(key) => setPreviewKey(key)} 
+            />
           )
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', flex: 1, padding: '40px 20px', color: 'var(--text-secondary)' }}>
@@ -222,20 +238,33 @@ export default function Home() {
       />
 
       {config && (
-        <UploadModal
-          isOpen={isUploadOpen}
+        <UploadModal 
+          isOpen={isUploadOpen} 
           onOpen={() => setIsUploadOpen(true)}
-          onClose={() => setIsUploadOpen(false)}
+          onClose={() => setIsUploadOpen(false)} 
+          config={config!}
+          currentPrefix={currentPrefix}
+          onSuccess={() => config && loadData(config)}
+        />
+      )}
+
+      {config && (
+        <CreateFolderModal
+          isOpen={isCreateFolderOpen}
+          onClose={() => setIsCreateFolderOpen(false)}
           config={config}
+          currentPrefix={currentPrefix}
           onSuccess={() => loadData(config)}
         />
       )}
 
-      <PreviewModal
-        fileKey={previewKey}
-        config={config}
-        onClose={() => setPreviewKey(null)}
-      />
+      {previewKey && config && (
+        <PreviewModal
+          onClose={() => setPreviewKey(null)}
+          config={config}
+          fileKey={previewKey}
+        />
+      )}
       
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes spin {

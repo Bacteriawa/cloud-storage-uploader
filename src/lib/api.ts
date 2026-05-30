@@ -41,6 +41,12 @@ export async function getPresignedUrl(config: R2Config, key: string, contentType
   return res.data.url;
 }
 
+export async function createFolder(config: R2Config, folderPath: string) {
+  const key = folderPath.endsWith('/') ? folderPath : `${folderPath}/`;
+  const url = await getPresignedUrl(config, key, 'application/x-directory');
+  await axios.put(url, new Blob([]), { headers: { 'Content-Type': 'application/x-directory' } });
+}
+
 export async function initMultipartUpload(config: R2Config, key: string, contentType: string) {
   const res = await axios.post('/api/upload/multipart/init', { key, contentType }, { headers: getHeaders(config) });
   return res.data.uploadId;
