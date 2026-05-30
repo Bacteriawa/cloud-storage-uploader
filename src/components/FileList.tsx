@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { File as FileIcon, Trash2, Edit2, Download, Link as LinkIcon, Check, Eye, Search } from 'lucide-react';
+import { File as FileIcon, Trash2, Edit2, Download, Link as LinkIcon, Check, Search } from 'lucide-react';
 import { R2Config } from '@/lib/config';
 import { deleteFile, renameFile, getDownloadUrl } from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';

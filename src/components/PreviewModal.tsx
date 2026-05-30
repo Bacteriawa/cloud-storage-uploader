@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ExternalLink, Loader2, Download } from 'lucide-react';
+import { X, ExternalLink, Loader2, Download, Copy } from 'lucide-react';
 import { R2Config } from '@/lib/config';
 import { getDownloadUrl } from '@/lib/api';
 import { useTranslation } from './LanguageProvider';
@@ -103,6 +104,7 @@ export default function PreviewModal({ fileKey, config, onClose }: Props) {
 
     switch (fileType) {
       case 'image':
+        // eslint-disable-next-line @next/next/no-img-element
         return <img src={url} alt={fileKey} style={{ maxWidth: '100%', maxHeight: '70vh', objectFit: 'contain' }} />;
       case 'video':
         return <video src={url} controls autoPlay style={{ maxWidth: '100%', maxHeight: '70vh' }} />;
@@ -201,9 +203,14 @@ export default function PreviewModal({ fileKey, config, onClose }: Props) {
             </h2>
             <div style={{ display: 'flex', gap: '8px' }}>
               {url && (
-                <a href={url} target="_blank" rel="noreferrer" className="action-icon" style={{ textDecoration: 'none', background: 'transparent' }} title={t('openInNewTab') || 'Open in new tab'}>
-                  <ExternalLink size={20} />
-                </a>
+                <>
+                  <button onClick={handleCopyLink} className="action-icon" style={{ border: 'none', background: 'transparent' }} title={t('copyLink') || 'Copy link'}>
+                    <Copy size={20} />
+                  </button>
+                  <a href={url} target="_blank" rel="noreferrer" className="action-icon" style={{ textDecoration: 'none', background: 'transparent' }} title={t('openInNewTab') || 'Open in new tab'}>
+                    <ExternalLink size={20} />
+                  </a>
+                </>
               )}
               <button onClick={onClose} className="action-icon" style={{ border: 'none', background: 'transparent' }}>
                 <X size={24} />

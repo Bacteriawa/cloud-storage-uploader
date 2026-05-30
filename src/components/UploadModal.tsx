@@ -2,10 +2,11 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { UploadCloud, X, File as FileIcon, CheckCircle, AlertCircle, Pause, Play, Loader2 } from 'lucide-react';
+import { UploadCloud, X, File as FileIcon, CheckCircle, AlertCircle, Pause, Play } from 'lucide-react';
 import { R2Config } from '@/lib/config';
 import { getPresignedUrl, initMultipartUpload, getMultipartPresignedUrl, completeMultipartUpload } from '@/lib/api';
 import axios from 'axios';
+import pLimit from 'p-limit';
 import { useTranslation } from './LanguageProvider';
 import { useToast } from './Toast';
 
@@ -36,6 +37,7 @@ interface UploadTask {
   abortController?: AbortController;
   uploadId?: string;
   parts?: { partNumber: number, eTag: string }[];
+  updatedAt?: number;
 }
 
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
@@ -51,13 +53,16 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
       if (saved) {
         try {
           const parsed = JSON.parse(saved) as UploadTask[];
-          return parsed.filter(t => t.status !== 'success').map(t => ({
-            ...t,
-            status: 'ghost' as const,
-            speed: 0,
-            abortController: undefined,
-            file: { ...t.file, isGhost: true }
-          }));
+          const ONE_DAY = 24 * 60 * 60 * 1000;
+          return parsed
+            .filter(t => t.status !== 'success' && (!t.updatedAt || Date.now() - t.updatedAt < ONE_DAY))
+            .map(t => ({
+              ...t,
+              status: 'ghost' as const,
+              speed: 0,
+              abortController: undefined,
+              file: { ...t.file, isGhost: true }
+            }));
         } catch { /* ignore corrupt localStorage */ }
       }
     }
@@ -92,7 +97,8 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
       status: t.status,
       loadedSize: t.loadedSize,
       uploadId: t.uploadId,
-      parts: t.parts
+      parts: t.parts,
+      updatedAt: Date.now()
     }));
     localStorage.setItem(`r2_tasks_${config.bucket}`, JSON.stringify(serializable));
   }, [tasks, config.bucket]);
@@ -153,6 +159,9 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
         
         let loadedTotal = parts.length * CHUNK_SIZE;
 
+        const limit = pLimit(3);
+        const uploadPromises = [];
+
         for (let i = 0; i < totalParts; i++) {
           const partNumber = i + 1;
           
@@ -160,31 +169,36 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
              continue; // Skip already uploaded part
           }
 
-          const start = i * CHUNK_SIZE;
-          const end = Math.min(start + CHUNK_SIZE, file.size);
-          const chunk = file.slice(start, end);
+          uploadPromises.push(limit(async () => {
+            const start = i * CHUNK_SIZE;
+            const end = Math.min(start + CHUNK_SIZE, file.size);
+            const chunk = file.slice(start, end);
 
-          const url = await getMultipartPresignedUrl(config, key, uploadId, partNumber);
-          
-          const res = await axios.put(url, chunk, {
-            headers: { 'Content-Type': contentType },
-            signal: abortController.signal,
-            onUploadProgress: (progressEvent) => {
-              const currentLoadedTotal = loadedTotal + progressEvent.loaded;
-              const percentCompleted = Math.round((currentLoadedTotal * 100) / file.size);
-              const elapsed = (Date.now() - startTime) / 1000;
-              const speed = elapsed > 0 ? progressEvent.loaded / elapsed : 0; // Current chunk speed
-              setTasks(prev => prev.map(t => t.id === taskId ? { ...t, progress: percentCompleted, loadedSize: currentLoadedTotal, speed } : t));
-            }
-          });
+            const url = await getMultipartPresignedUrl(config, key, uploadId, partNumber);
+            
+            const res = await axios.put(url, chunk, {
+              headers: { 'Content-Type': contentType },
+              signal: abortController.signal,
+              onUploadProgress: (progressEvent) => {
+                // Approximate total progress across concurrent chunks using the sum of loaded parts
+                const currentLoadedTotal = loadedTotal + progressEvent.loaded;
+                const percentCompleted = Math.round((currentLoadedTotal * 100) / file.size);
+                const elapsed = (Date.now() - startTime) / 1000;
+                const speed = elapsed > 0 ? progressEvent.loaded / elapsed : 0; // Current chunk speed
+                setTasks(prev => prev.map(t => t.id === taskId ? { ...t, progress: percentCompleted, loadedSize: currentLoadedTotal, speed } : t));
+              }
+            });
 
-          const eTag = res.headers['etag'];
-          parts.push({ partNumber, eTag: eTag.replace(/"/g, '') });
-          loadedTotal += chunk.size;
-          
-          localStorage.setItem(cacheKey, JSON.stringify({ uploadId, parts }));
-          setTasks(prev => prev.map(t => t.id === taskId ? { ...t, parts } : t));
+            const eTag = res.headers['etag'];
+            parts.push({ partNumber, eTag: eTag.replace(/"/g, '') });
+            loadedTotal += chunk.size;
+            
+            localStorage.setItem(cacheKey, JSON.stringify({ uploadId, parts }));
+            setTasks(prev => prev.map(t => t.id === taskId ? { ...t, parts } : t));
+          }));
         }
+        
+        await Promise.all(uploadPromises);
 
         await completeMultipartUpload(config, key, uploadId, parts);
         localStorage.removeItem(cacheKey);

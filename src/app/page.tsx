@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -31,7 +32,7 @@ export default function Home() {
   const [previewKey, setPreviewKey] = useState<string | null>(null);
   const { t, lang, setLang, theme, setTheme } = useTranslation();
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- Client-side initialization from localStorage
+  // Client-side initialization from localStorage
   useEffect(() => {
     setIsClient(true);
     if (hasConfig()) {
@@ -68,7 +69,6 @@ export default function Home() {
   }, []);
 
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- Triggers data fetch when config changes
   useEffect(() => {
     if (config) {
       loadData(config);

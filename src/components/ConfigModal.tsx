@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -35,7 +36,7 @@ export default function ConfigModal({ isOpen, onClose, onSave }: Props) {
 
   const [profiles, setProfiles] = useState<R2Config[]>([]);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- Populates form from localStorage when modal opens
+  // Populates form from localStorage when modal opens
   useEffect(() => {
     if (isOpen) {
       const existing = loadConfig();

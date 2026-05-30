@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -176,7 +177,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<Language>('en');
   const [theme, setThemeState] = useState<Theme>('dark');
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- Initializes from localStorage/browser prefs on mount
+  // Initializes from localStorage/browser prefs on mount
   useEffect(() => {
     const savedLang = localStorage.getItem('r2_lang') as Language;
     if (savedLang && (savedLang === 'en' || savedLang === 'zh')) {

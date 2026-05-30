@@ -11,6 +11,45 @@ export interface R2Config {
   sitePassword?: string;
 }
 
+import CryptoJS from 'crypto-js';
+
+const OBFUSCATION_KEY = 'r2-client-side-obfuscation-key-2026';
+
+function encryptSecret(text: string): string {
+  if (!text) return text;
+  // Don't re-encrypt if it already looks like crypto-js AES output (starts with U2FsdGVkX1)
+  if (text.startsWith('U2FsdGVkX1')) return text;
+  return CryptoJS.AES.encrypt(text, OBFUSCATION_KEY).toString();
+}
+
+function decryptSecret(cipherText: string): string {
+  if (!cipherText) return cipherText;
+  if (!cipherText.startsWith('U2FsdGVkX1')) return cipherText; // Plaintext legacy
+  try {
+    const bytes = CryptoJS.AES.decrypt(cipherText, OBFUSCATION_KEY);
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+    return decrypted || cipherText;
+  } catch {
+    return cipherText;
+  }
+}
+
+function encryptConfig(config: R2Config): R2Config {
+  return {
+    ...config,
+    accessKeyId: encryptSecret(config.accessKeyId),
+    secretAccessKey: encryptSecret(config.secretAccessKey)
+  };
+}
+
+function decryptConfig(config: R2Config): R2Config {
+  return {
+    ...config,
+    accessKeyId: decryptSecret(config.accessKeyId),
+    secretAccessKey: decryptSecret(config.secretAccessKey)
+  };
+}
+
 const STORAGE_KEY = 'r2_uploader_config';
 const STORAGE_LIST_KEY = 'r2_uploader_configs_list';
 
@@ -27,14 +66,16 @@ export function loadAllConfigs(): R2Config[] {
     return [];
   }
   try {
-    return JSON.parse(jsonStr) as R2Config[];
+    const parsed = JSON.parse(jsonStr) as R2Config[];
+    return parsed.map(decryptConfig);
   } catch {
     return [];
   }
 }
 
 export function saveAllConfigs(configs: R2Config[]) {
-  localStorage.setItem(STORAGE_LIST_KEY, JSON.stringify(configs));
+  const encrypted = configs.map(encryptConfig);
+  localStorage.setItem(STORAGE_LIST_KEY, JSON.stringify(encrypted));
 }
 
 export function saveConfig(config: R2Config) {
@@ -45,7 +86,8 @@ export function saveConfig(config: R2Config) {
     config.label = config.bucket || 'New Profile';
   }
   
-  const jsonStr = JSON.stringify(config);
+  const encrypted = encryptConfig(config);
+  const jsonStr = JSON.stringify(encrypted);
   localStorage.setItem(STORAGE_KEY, jsonStr);
   if (config.sitePassword) {
     localStorage.setItem('r2_site_password', config.sitePassword);
@@ -67,7 +109,8 @@ export function loadConfig(): R2Config | null {
   if (!jsonStr) return null;
 
   try {
-    return JSON.parse(jsonStr) as R2Config;
+    const parsed = JSON.parse(jsonStr) as R2Config;
+    return decryptConfig(parsed);
   } catch {
     return null;
   }
