@@ -159,4 +159,29 @@ describe('config.ts', () => {
       expect(getSitePassword()).toBe('mypass');
     });
   });
+
+  describe('encryption handling', () => {
+    it('does not crash or double encrypt when keys are empty', () => {
+      const emptyConfig = { ...sampleConfig, accessKeyId: '', secretAccessKey: '' };
+      saveConfig(emptyConfig);
+      const loaded = loadConfig();
+      expect(loaded?.accessKeyId).toBe('');
+    });
+
+    it('handles legacy plaintext keys without decrypting them', () => {
+      // Simulate old plaintext config
+      localStorageMock.setItem('r2_uploader_config', JSON.stringify(sampleConfig));
+      const loaded = loadConfig();
+      // Should read plaintext normally
+      expect(loaded?.accessKeyId).toBe('ak123');
+    });
+
+    it('handles corrupted encryption gracefully', () => {
+      const corrupted = { ...sampleConfig, accessKeyId: 'U2FsdGVkX1-CORRUPT-DATA' };
+      localStorageMock.setItem('r2_uploader_config', JSON.stringify(corrupted));
+      const loaded = loadConfig();
+      // Should fallback to returning the corrupted string if it fails to parse
+      expect(loaded?.accessKeyId).toBe('U2FsdGVkX1-CORRUPT-DATA');
+    });
+  });
 });
