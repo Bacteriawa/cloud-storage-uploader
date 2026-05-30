@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { File as FileIcon, Trash2, Edit2, Download, Link as LinkIcon, Check, Search, X, Folder, ArrowLeft, UploadCloud, RefreshCw, FolderPlus, Database } from 'lucide-react';
 import { R2Config } from '@/lib/config';
 import { deleteFile, renameFile, getDownloadUrl } from '@/lib/api';
@@ -28,7 +28,7 @@ interface Props {
 }
 
 export default function FileList({ files, config, currentPrefix, setCurrentPrefix, onRefresh, onPreview, onUploadClick, onCreateFolderClick, isLoading }: Props) {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const { showToast } = useToast();
   const [renamingKey, setRenamingKey] = useState<string | null>(null);
   const [newKey, setNewKey] = useState('');
@@ -221,17 +221,48 @@ export default function FileList({ files, config, currentPrefix, setCurrentPrefi
           </div>
           <div style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '8px' }}>
             {selectedKeys.size > 0 ? (
-              <>
-                <span style={{ color: 'var(--accent)' }}>{selectedKeys.size} {t('selectedFiles')}</span>
-                <button className="btn-outline action-icon" onClick={() => setSelectedKeys(new Set())} title={t('cancelSelection')} style={{ padding: '4px', border: 'none' }}><X size={14} /></button>
-                <button className="btn btn-danger" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={() => setShowBatchConfirm(true)} disabled={isBatchDeleting}>
-                  <Trash2 size={14} /> {isBatchDeleting ? '...' : t('batchDelete')}
+              <React.Fragment key="selected-actions">
+                <span style={{ color: 'var(--accent)', marginRight: '8px' }}>{selectedKeys.size} {t('selectedFiles')}</span>
+                <button 
+                  key="cancel-btn"
+                  className="btn-outline action-icon" 
+                  onClick={() => setSelectedKeys(new Set())} 
+                  title={t('cancelSelection')} 
+                  style={{ padding: '10px', borderRadius: '10px', border: '1px solid var(--glass-border)', display: 'flex', alignItems: 'center' }}
+                >
+                  <X size={20} />
                 </button>
-              </>
+                <button 
+                  key="delete-btn"
+                  className="btn btn-danger" 
+                  style={{ padding: '10px 20px', fontSize: '15px', borderRadius: '10px', display: 'flex', alignItems: 'center' }} 
+                  onClick={() => setShowBatchConfirm(true)} 
+                  disabled={isBatchDeleting}
+                >
+                  <Trash2 size={18} style={{ marginRight: '6px' }} /> {isBatchDeleting ? '...' : (() => {
+                    let folders = 0;
+                    let files = 0;
+                    selectedKeys.forEach(k => k.endsWith('/') ? folders++ : files++);
+                    
+                    if (lang === 'zh') {
+                      const parts = [];
+                      if (folders > 0) parts.push(`${folders} 个文件夹`);
+                      if (files > 0) parts.push(`${files} 个文件`);
+                      return `删除 ${parts.join('和')}`;
+                    } else {
+                      const parts = [];
+                      if (folders > 0) parts.push(`${folders} folder${folders > 1 ? 's' : ''}`);
+                      if (files > 0) parts.push(`${files} file${files > 1 ? 's' : ''}`);
+                      return `Delete ${parts.join(' and ')}`;
+                    }
+                  })()}
+                </button>
+              </React.Fragment>
             ) : (
-              <>
+              <React.Fragment key="default-actions">
                 <span style={{ marginRight: '4px' }}>{filteredFiles.length} {t('filesCount') || 'files'}</span>
                 <button 
+                  key="refresh-btn"
                   className="btn btn-outline action-icon"
                   onClick={onRefresh}
                   disabled={isLoading}
@@ -254,7 +285,7 @@ export default function FileList({ files, config, currentPrefix, setCurrentPrefi
                 >
                   <UploadCloud size={18} style={{ marginRight: '6px' }} /> {t('upload') || 'Upload'}
                 </button>
-              </>
+              </React.Fragment>
             )}
           </div>
         </div>
