@@ -8,6 +8,14 @@ export const metadata: Metadata = {
   description: "A fast, secure, and beautiful way to manage your Cloudflare R2 files.",
 };
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: 'cover',
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{

@@ -170,7 +170,7 @@ export default function FileList({ files, config, onRefresh, onPreview }: Props)
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
               >
-                <td>
+                <td data-label={t('name') || 'Name'}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <FileIcon size={18} color="var(--accent)" />
                     {renamingKey === file.key ? (
@@ -198,9 +198,9 @@ export default function FileList({ files, config, onRefresh, onPreview }: Props)
                     )}
                   </div>
                 </td>
-                <td style={{ color: 'var(--text-secondary)' }}>{formatSize(file.size)}</td>
-                <td style={{ color: 'var(--text-secondary)' }}>{formatDate(file.lastModified)}</td>
-                <td>
+                <td data-label={t('size') || 'Size'} style={{ color: 'var(--text-secondary)' }}>{formatSize(file.size)}</td>
+                <td data-label={t('lastModified') || 'Last Modified'} style={{ color: 'var(--text-secondary)' }}>{formatDate(file.lastModified)}</td>
+                <td data-label={t('actions') || 'Actions'}>
                   <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', opacity: loading === file.key ? 0.5 : 1, pointerEvents: loading === file.key ? 'none' : 'auto' }}>
                     {config.publicDomain && (
                       <button 

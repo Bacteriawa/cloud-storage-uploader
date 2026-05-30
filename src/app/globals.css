@@ -10,6 +10,10 @@
   --danger-hover: #dc2626;
   --success: #10b981;
   --input-bg: rgba(0, 0, 0, 0.2);
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-inset-left: env(safe-area-inset-left, 0px);
+  --safe-area-inset-right: env(safe-area-inset-right, 0px);
 }
 
 [data-theme="light"] {
@@ -30,6 +34,144 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+/* Mobile Responsiveness & Safe Areas */
+main {
+  padding-top: calc(40px + var(--safe-area-inset-top)) !important;
+  padding-bottom: calc(40px + var(--safe-area-inset-bottom)) !important;
+  padding-left: calc(20px + var(--safe-area-inset-left)) !important;
+  padding-right: calc(20px + var(--safe-area-inset-right)) !important;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Ensure buttons/interactive elements have at least 48x48px hit area on mobile */
+@media (max-width: 768px) {
+  .btn, .action-icon {
+    min-height: 48px;
+    min-width: 48px;
+    padding: 12px 16px;
+  }
+  
+  .input-field {
+    min-height: 48px;
+    font-size: 16px; /* Prevents iOS auto-zoom */
+  }
+
+  /* Header adjustments */
+  header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 16px;
+  }
+
+  header > div {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  /* Modal responsiveness */
+  .modal-content {
+    width: 95% !important;
+    max-width: 100% !important;
+    max-height: 90vh !important;
+    margin-top: env(safe-area-inset-top, 0px);
+    margin-bottom: env(safe-area-inset-bottom, 0px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .file-list-header {
+    display: none !important; /* Hide complex headers on very small screens */
+  }
+
+  .file-item {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 12px;
+    padding: 16px !important;
+  }
+
+  .file-item-actions {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+  
+  .file-item-info {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .modal-content {
+    width: 85% !important;
+  }
+  .file-item-info {
+    max-width: 60%;
+  }
+
+  /* Table Mobile Responsiveness */
+  table {
+    display: block;
+    width: 100%;
+  }
+  
+  thead {
+    display: none; /* Hide headers on mobile */
+  }
+  
+  tbody {
+    display: block;
+    width: 100%;
+  }
+  
+  tr {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border: 1px solid var(--glass-border);
+  }
+  
+  td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--glass-border);
+  }
+
+  td:last-child {
+    border-bottom: none;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+  
+  td::before {
+    /* Insert a pseudo-element for mobile labels if needed, or rely on the layout */
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-right: 16px;
+  }
+}
+
+/* Fix for landscape mode */
+@media (max-height: 500px) and (orientation: landscape) {
+  .modal-content {
+    max-height: 85vh !important;
+  }
+  header {
+    margin-bottom: 20px !important;
+  }
 }
 
 body {
