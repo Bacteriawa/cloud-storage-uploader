@@ -23,8 +23,9 @@ export async function POST(req: Request) {
       uploadId: response.UploadId,
       key: response.Key
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Init multipart error:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

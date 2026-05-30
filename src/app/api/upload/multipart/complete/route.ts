@@ -15,7 +15,7 @@ export async function POST(req: Request) {
       Key: key,
       UploadId: uploadId,
       MultipartUpload: {
-        Parts: parts.map((p: any) => ({
+        Parts: parts.map((p: { eTag: string; partNumber: number }) => ({
           ETag: p.eTag,
           PartNumber: p.partNumber,
         })),
@@ -25,8 +25,9 @@ export async function POST(req: Request) {
     await client.send(command);
     
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Complete multipart error:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

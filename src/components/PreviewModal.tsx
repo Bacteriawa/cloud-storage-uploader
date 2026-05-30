@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ExternalLink, Loader2, Download } from 'lucide-react';
 import { R2Config } from '@/lib/config';
-import { getDownloadUrl, deleteFile } from '@/lib/api';
+import { getDownloadUrl } from '@/lib/api';
 import { useTranslation } from './LanguageProvider';
 import { useToast } from './Toast';
 
@@ -77,9 +77,10 @@ export default function PreviewModal({ fileKey, config, onClose }: Props) {
               // If fetch fails (CORS), fall back to download link
             }
           }
-        } catch (err: any) {
-          setError(err.message || t('failedDownload'));
-          showToast(err.message || t('failedDownload'), 'error');
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : t('failedDownload');
+          setError(message);
+          showToast(message, 'error');
         } finally {
           setLoading(false);
         }
@@ -89,6 +90,7 @@ export default function PreviewModal({ fileKey, config, onClose }: Props) {
       setUrl(null);
       setTextContent(null);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- showToast is stable
   }, [fileKey, config, t]);
 
   if (!fileKey) return null;

@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { HardDrive, File as FileIcon, Clock, TrendingUp, ChevronLeft, ArrowUpRight, ArrowDown } from 'lucide-react';
+import { HardDrive, File as FileIcon, TrendingUp, ArrowUpRight } from 'lucide-react';
 import { R2File } from './FileList';
 import { useTranslation } from './LanguageProvider';
 
@@ -11,7 +11,7 @@ interface Props {
   onBack: () => void;
 }
 
-export default function StatsView({ files, onBack }: Props) {
+export default function StatsView({ files }: Props) {
   const { t } = useTranslation();
 
   const formatSize = (bytes: number) => {

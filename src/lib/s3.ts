@@ -10,6 +10,16 @@ export function getS3Client(req: Request) {
     throw new Error('Missing R2 configuration headers');
   }
 
+  // Validate endpoint format
+  if (!/^https?:\/\/.+/i.test(endpoint)) {
+    throw new Error('Invalid endpoint: must start with http:// or https://');
+  }
+
+  // Validate key length (prevent abuse)
+  if (accessKeyId.length > 256 || secretAccessKey.length > 256) {
+    throw new Error('Invalid credentials: key too long');
+  }
+
   return new S3Client({
     region: region,
     endpoint: endpoint,
@@ -29,7 +39,7 @@ export function getBucketName(req: Request) {
   return bucket;
 }
 
-export function verifyAuth(req: Request) {
+export function verifyAuth(_req: Request) {
   // Authentication has been removed per user request
   return true;
 }

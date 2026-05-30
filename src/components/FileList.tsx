@@ -55,8 +55,8 @@ export default function FileList({ files, config, onRefresh, onPreview }: Props)
       await deleteFile(config, key);
       onRefresh();
       showToast(t('deleteSuccess') || 'File deleted successfully', 'success');
-    } catch (e: any) {
-      showToast(e.message || t('failedDelete'), 'error');
+    } catch (e: unknown) {
+      showToast(e instanceof Error ? e.message : t('failedDelete'), 'error');
     } finally {
       setLoading(null);
     }
@@ -73,8 +73,8 @@ export default function FileList({ files, config, onRefresh, onPreview }: Props)
       setRenamingKey(null);
       onRefresh();
       showToast(t('renameSuccess') || 'File renamed successfully', 'success');
-    } catch (e: any) {
-      showToast(e.message || t('failedRename'), 'error');
+    } catch (e: unknown) {
+      showToast(e instanceof Error ? e.message : t('failedRename'), 'error');
     } finally {
       setLoading(null);
     }
@@ -90,8 +90,8 @@ export default function FileList({ files, config, onRefresh, onPreview }: Props)
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-    } catch (e: any) {
-      showToast(e.message || t('failedDownload'), 'error');
+    } catch (e: unknown) {
+      showToast(e instanceof Error ? e.message : t('failedDownload'), 'error');
     } finally {
       setLoading(null);
     }

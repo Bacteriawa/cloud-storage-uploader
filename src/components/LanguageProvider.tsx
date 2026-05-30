@@ -175,8 +175,8 @@ const I18nContext = createContext<I18nContextType | undefined>(undefined);
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<Language>('en');
   const [theme, setThemeState] = useState<Theme>('dark');
-  const [mounted, setMounted] = useState(false);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- Initializes from localStorage/browser prefs on mount
   useEffect(() => {
     const savedLang = localStorage.getItem('r2_lang') as Language;
     if (savedLang && (savedLang === 'en' || savedLang === 'zh')) {
@@ -196,8 +196,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       setThemeState(initialTheme);
       document.documentElement.setAttribute('data-theme', initialTheme);
     }
-    
-    setMounted(true);
   }, []);
 
   const handleSetLang = (newLang: Language) => {
@@ -212,7 +210,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   };
 
   const t = (key: string): string => {
-    return (translations[lang] as any)[key] || key;
+    return (translations[lang] as Record<string, string>)[key] || key;
   };
 
   // Remove the early return that causes context to be undefined during SSR

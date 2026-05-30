@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Lock, Cloud, Key, Shield, X, Server, ChevronDown, List, Plus } from 'lucide-react';
+import { Settings, Cloud, Key, Shield, X, Server, ChevronDown, List, Plus } from 'lucide-react';
 import { R2Config, saveConfig, loadConfig, loadAllConfigs } from '@/lib/config';
 import { useTranslation } from './LanguageProvider';
 
@@ -35,6 +35,7 @@ export default function ConfigModal({ isOpen, onClose, onSave }: Props) {
 
   const [profiles, setProfiles] = useState<R2Config[]>([]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- Populates form from localStorage when modal opens
   useEffect(() => {
     if (isOpen) {
       const existing = loadConfig();
@@ -249,7 +250,7 @@ export default function ConfigModal({ isOpen, onClose, onSave }: Props) {
                             <div
                               key={option.id}
                               onClick={() => {
-                                const provider = option.id as any;
+                                const provider = option.id as R2Config['provider'];
                                 setConfig(prev => {
                                   let newEndpoint = prev.endpoint || '';
                                   let newRegion = prev.region || '';

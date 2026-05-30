@@ -18,8 +18,9 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ key: 
 
     await client.send(command);
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
 
@@ -66,8 +67,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ key: st
     }
 
     throw new Error('Invalid action');
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('File operation error:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

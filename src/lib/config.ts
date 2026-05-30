@@ -28,7 +28,7 @@ export function loadAllConfigs(): R2Config[] {
   }
   try {
     return JSON.parse(jsonStr) as R2Config[];
-  } catch (e) {
+  } catch {
     return [];
   }
 }
@@ -68,7 +68,7 @@ export function loadConfig(): R2Config | null {
 
   try {
     return JSON.parse(jsonStr) as R2Config;
-  } catch (e) {
+  } catch {
     return null;
   }
 }

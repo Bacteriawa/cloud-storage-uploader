@@ -17,8 +17,9 @@ export async function GET(req: Request) {
     await client.send(command);
 
     return NextResponse.json({ success: true, message: 'Configuration is valid' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Auth check error:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 401 });
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ success: false, error: message }, { status: 401 });
   }
 }

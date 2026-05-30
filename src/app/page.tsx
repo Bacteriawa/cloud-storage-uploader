@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Settings, UploadCloud, RefreshCw, Folder, Moon, Sun, Database, AlertCircle, BarChart2 } from 'lucide-react';
+import { Settings, UploadCloud, RefreshCw, Moon, Sun, Database, AlertCircle, BarChart2 } from 'lucide-react';
 import ConfigModal from '@/components/ConfigModal';
 import UploadModal from '@/components/UploadModal';
 import PreviewModal from '@/components/PreviewModal';
@@ -31,14 +31,7 @@ export default function Home() {
   const [previewKey, setPreviewKey] = useState<string | null>(null);
   const { t, lang, setLang, theme, setTheme } = useTranslation();
 
-  const formatSize = (bytes: number) => {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- Client-side initialization from localStorage
   useEffect(() => {
     setIsClient(true);
     if (hasConfig()) {
@@ -64,14 +57,18 @@ export default function Home() {
       // Then load files
       const data = await listFiles(cfg);
       setFiles(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err?.response?.data?.error || err.message || 'Failed to connect to Object Storage');
+      const message = err instanceof Error ? err.message : 'Failed to connect to Object Storage';
+      const axiosError = err as { response?: { data?: { error?: string } } };
+      setError(axiosError?.response?.data?.error || message);
     } finally {
       setLoading(false);
     }
   }, []);
 
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- Triggers data fetch when config changes
   useEffect(() => {
     if (config) {
       loadData(config);

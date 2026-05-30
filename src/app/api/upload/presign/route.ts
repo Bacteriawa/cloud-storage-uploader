@@ -20,8 +20,9 @@ export async function POST(req: Request) {
     const url = await getSignedUrl(client, command, { expiresIn: 3600 });
     
     return NextResponse.json({ success: true, url });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Presign single upload error:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

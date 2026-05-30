@@ -50,15 +50,15 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
       const saved = localStorage.getItem(`r2_tasks_${config.bucket}`);
       if (saved) {
         try {
-          const parsed = JSON.parse(saved);
-          return parsed.filter((t: any) => t.status !== 'success').map((t: any) => ({
+          const parsed = JSON.parse(saved) as UploadTask[];
+          return parsed.filter(t => t.status !== 'success').map(t => ({
             ...t,
-            status: 'ghost',
+            status: 'ghost' as const,
             speed: 0,
             abortController: undefined,
             file: { ...t.file, isGhost: true }
           }));
-        } catch(e) {}
+        } catch { /* ignore corrupt localStorage */ }
       }
     }
     return [];
@@ -75,6 +75,7 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
         }
       });
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Cleanup-only, intentionally captures tasks at mount
   }, []);
 
   useEffect(() => {
@@ -191,11 +192,12 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
 
       setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: 'success', progress: 100 } : t));
       onSuccess();
-    } catch (error: any) {
-      if (axios.isCancel(error) || error.name === 'CanceledError' || abortController.signal.aborted) {
+    } catch (error: unknown) {
+      if (axios.isCancel(error) || (error instanceof Error && error.name === 'CanceledError') || abortController.signal.aborted) {
         setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: 'paused', speed: 0 } : t));
       } else {
-        setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: 'error', error: error.message, speed: 0 } : t));
+        const message = error instanceof Error ? error.message : 'Upload failed';
+        setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: 'error', error: message, speed: 0 } : t));
       }
     }
   };
@@ -261,7 +263,7 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
           parts = parsed.parts || [];
           initialLoaded = parts.length * CHUNK_SIZE;
           initialProgress = Math.round((initialLoaded * 100) / file.size);
-        } catch (e) {}
+        } catch { /* ignore corrupt cached upload state */ }
       }
 
       const id = Math.random().toString(36).substring(7);
@@ -291,6 +293,7 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       addFilesToQueue(e.dataTransfer.files);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- addFilesToQueue is stable within render
   }, [config, onSuccess]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
