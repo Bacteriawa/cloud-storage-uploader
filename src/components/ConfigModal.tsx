@@ -96,10 +96,11 @@ export default function ConfigModal({ isOpen, onClose, onSave }: Props) {
 
             <form onSubmit={handleConfigSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div style={{ display: 'grid', gap: '24px 32px', gridTemplateColumns: '1fr 1fr' }}>
-                <div style={{ gridColumn: 'span 1', position: 'relative' }}>
+                <div style={{ gridColumn: 'span 1' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontSize: '14px', color: 'var(--text-secondary)' }}>
                     <List size={14} /> {t('savedProfiles') || 'Saved Profiles'}
                   </label>
+                  <div style={{ position: 'relative' }}>
                   <div 
                     className="input-field"
                     style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }}
@@ -153,7 +154,7 @@ export default function ConfigModal({ isOpen, onClose, onSave }: Props) {
                               color: (!config.id || config.id === 'new') ? 'var(--accent)' : 'var(--text-primary)',
                               fontWeight: (!config.id || config.id === 'new') ? 600 : 400,
                               transition: 'background-color 0.1s',
-                              marginBottom: '4px'
+                              marginBottom: profiles.length > 0 ? '4px' : '0'
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.background = 'var(--input-bg)'}
                             onMouseLeave={(e) => e.currentTarget.style.background = (!config.id || config.id === 'new') ? 'var(--input-bg)' : 'transparent'}
@@ -197,6 +198,7 @@ export default function ConfigModal({ isOpen, onClose, onSave }: Props) {
                     )}
                   </AnimatePresence>
                 </div>
+                </div>
                 
                 <div style={{ gridColumn: 'span 1' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontSize: '14px', color: 'var(--text-secondary)' }}>
@@ -212,10 +214,11 @@ export default function ConfigModal({ isOpen, onClose, onSave }: Props) {
                   />
                 </div>
 
-                <div style={{ gridColumn: 'span 1', position: 'relative' }}>
+                <div style={{ gridColumn: 'span 1' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontSize: '14px', color: 'var(--text-secondary)' }}>
                     <Server size={14} /> {t('storageProvider') || 'Storage Provider'}
                   </label>
+                  <div style={{ position: 'relative' }}>
                   <div 
                     className="input-field"
                     style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }}
@@ -286,6 +289,7 @@ export default function ConfigModal({ isOpen, onClose, onSave }: Props) {
                       </>
                     )}
                   </AnimatePresence>
+                  </div>
                 </div>
 
                 <div style={{ gridColumn: 'span 1' }}>

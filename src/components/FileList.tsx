@@ -123,7 +123,7 @@ export default function FileList({ files, config, onRefresh, onPreview }: Props)
 
   if (files.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-secondary)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', flex: 1, minHeight: '300px', color: 'var(--text-secondary)' }}>
         <FileIcon size={48} style={{ margin: '0 auto 16px', opacity: 0.2 }} />
         <p>{t('noFiles')}</p>
       </div>

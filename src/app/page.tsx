@@ -161,13 +161,13 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="glass-panel" style={{ padding: '24px', minHeight: '400px' }}>
+      <div className="glass-panel" style={{ padding: '24px', minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
         {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1, minHeight: '300px' }}>
             <RefreshCw size={32} color="var(--accent)" style={{ animation: 'spin 1s linear infinite' }} />
           </div>
         ) : error ? (
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--danger)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', flex: 1, padding: '40px 20px', color: 'var(--danger)' }}>
             <p>{error}</p>
             <button className="btn btn-outline" style={{ marginTop: '16px' }} onClick={() => setIsConfigOpen(true)}>
               {t('checkConfig')}
@@ -180,7 +180,7 @@ export default function Home() {
             <FileList files={files} config={config} onRefresh={() => loadData(config)} onPreview={(key) => setPreviewKey(key)} />
           )
         ) : (
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-secondary)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', flex: 1, padding: '40px 20px', color: 'var(--text-secondary)' }}>
             <Settings size={48} style={{ margin: '0 auto 16px', opacity: 0.2 }} />
             <p>{t('pleaseConfigure')}</p>
           </div>
