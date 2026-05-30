@@ -34,6 +34,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Mobile Responsiveness & Safe Areas */
@@ -228,6 +229,11 @@ body {
   box-shadow: none !important;
 }
 
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .btn-primary {
   background: var(--accent);
   color: white;
@@ -363,6 +369,11 @@ tr:hover td {
 .action-icon.delete:hover {
   color: var(--danger);
   background: rgba(239, 68, 68, 0.1);
+}
+
+.action-icon:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .filename-link {
