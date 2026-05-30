@@ -50,8 +50,8 @@ function decryptConfig(config: R2Config): R2Config {
   };
 }
 
-const STORAGE_KEY = 'r2_uploader_config';
-const STORAGE_LIST_KEY = 'r2_uploader_configs_list';
+const STORAGE_KEY = 'cloud_storage_uploader_config';
+const STORAGE_LIST_KEY = 'cloud_storage_uploader_configs_list';
 
 export function loadAllConfigs(): R2Config[] {
   if (typeof window === 'undefined') return [];
@@ -90,7 +90,7 @@ export function saveConfig(config: R2Config) {
   const jsonStr = JSON.stringify(encrypted);
   localStorage.setItem(STORAGE_KEY, jsonStr);
   if (config.sitePassword) {
-    localStorage.setItem('r2_site_password', config.sitePassword);
+    localStorage.setItem('cloud_storage_site_password', config.sitePassword);
   }
 
   const all = loadAllConfigs();
@@ -118,7 +118,7 @@ export function loadConfig(): R2Config | null {
 
 export function getSitePassword(): string {
   if (typeof window !== 'undefined') {
-    return localStorage.getItem('r2_site_password') || '';
+    return localStorage.getItem('cloud_storage_site_password') || '';
   }
   return '';
 }
@@ -132,5 +132,5 @@ export function hasConfig(): boolean {
 
 export function clearConfig() {
   localStorage.removeItem(STORAGE_KEY);
-  localStorage.removeItem('r2_site_password');
+  localStorage.removeItem('cloud_storage_site_password');
 }

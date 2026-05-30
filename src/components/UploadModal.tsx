@@ -49,7 +49,7 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
   const { showToast } = useToast();
   const [tasks, setTasks] = useState<UploadTask[]>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(`r2_tasks_${config.bucket}`);
+      const saved = localStorage.getItem(`csu_tasks_${config.bucket}`);
       if (saved) {
         try {
           const parsed = JSON.parse(saved) as UploadTask[];
@@ -100,7 +100,7 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
       parts: t.parts,
       updatedAt: Date.now()
     }));
-    localStorage.setItem(`r2_tasks_${config.bucket}`, JSON.stringify(serializable));
+    localStorage.setItem(`csu_tasks_${config.bucket}`, JSON.stringify(serializable));
   }, [tasks, config.bucket]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -145,7 +145,7 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
         // Multipart upload - Resumable!
         let uploadId = existingUploadId;
         const parts = existingParts ? [...existingParts] : [];
-        const cacheKey = `r2_upload_${config.bucket}_${getFileId(file)}`;
+        const cacheKey = `csu_upload_${config.bucket}_${getFileId(file)}`;
 
         if (!uploadId) {
           uploadId = await initMultipartUpload(config, key, contentType);
@@ -254,7 +254,7 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
       if (task.abortController) {
         task.abortController.abort();
       }
-      const cacheKey = `r2_upload_${config.bucket}_${getFileId(task.file)}`;
+      const cacheKey = `csu_upload_${config.bucket}_${getFileId(task.file)}`;
       localStorage.removeItem(cacheKey);
       setTasks(prev => prev.filter(t => t.id !== taskId));
     }
@@ -263,7 +263,7 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
   const addFilesToQueue = (fileList: FileList | File[]) => {
     const newTasks = Array.from(fileList).map(file => {
       const fileId = getFileId(file);
-      const cacheKey = `r2_upload_${config.bucket}_${fileId}`;
+      const cacheKey = `csu_upload_${config.bucket}_${fileId}`;
       const cached = localStorage.getItem(cacheKey);
       let uploadId = undefined;
       let parts = [];

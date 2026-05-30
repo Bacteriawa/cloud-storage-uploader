@@ -69,7 +69,7 @@ describe('config.ts', () => {
 
     it('saves sitePassword separately', () => {
       saveConfig({ ...sampleConfig, sitePassword: 'secret123' });
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('r2_site_password', 'secret123');
+      expect(localStorageMock.setItem).toHaveBeenCalledWith('cloud_storage_site_password', 'secret123');
     });
   });
 
@@ -79,7 +79,7 @@ describe('config.ts', () => {
     });
 
     it('returns null for corrupt JSON', () => {
-      localStorageMock.setItem('r2_uploader_config', 'not-json{{{');
+      localStorageMock.setItem('cloud_storage_uploader_config', 'not-json{{{');
       expect(loadConfig()).toBeNull();
     });
   });
@@ -100,8 +100,8 @@ describe('config.ts', () => {
       saveConfig({ ...sampleConfig, sitePassword: 'pwd' });
       clearConfig();
       expect(loadConfig()).toBeNull();
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith('r2_uploader_config');
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith('r2_site_password');
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith('cloud_storage_uploader_config');
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith('cloud_storage_site_password');
     });
   });
 
@@ -112,7 +112,7 @@ describe('config.ts', () => {
 
     it('migrates single config to list on first call', () => {
       // Save via saveConfig (single mode) but don't save to list
-      localStorageMock.setItem('r2_uploader_config', JSON.stringify(sampleConfig));
+      localStorageMock.setItem('cloud_storage_uploader_config', JSON.stringify(sampleConfig));
       const configs = loadAllConfigs();
       expect(configs.length).toBe(1);
       expect(configs[0].id).toBe('default');
@@ -128,7 +128,7 @@ describe('config.ts', () => {
     });
 
     it('handles corrupt JSON gracefully', () => {
-      localStorageMock.setItem('r2_uploader_configs_list', 'broken!!!');
+      localStorageMock.setItem('cloud_storage_uploader_configs_list', 'broken!!!');
       expect(loadAllConfigs()).toEqual([]);
     });
   });
@@ -155,7 +155,7 @@ describe('config.ts', () => {
     });
 
     it('returns saved password', () => {
-      localStorageMock.setItem('r2_site_password', 'mypass');
+      localStorageMock.setItem('cloud_storage_site_password', 'mypass');
       expect(getSitePassword()).toBe('mypass');
     });
   });
@@ -170,7 +170,7 @@ describe('config.ts', () => {
 
     it('handles legacy plaintext keys without decrypting them', () => {
       // Simulate old plaintext config
-      localStorageMock.setItem('r2_uploader_config', JSON.stringify(sampleConfig));
+      localStorageMock.setItem('cloud_storage_uploader_config', JSON.stringify(sampleConfig));
       const loaded = loadConfig();
       // Should read plaintext normally
       expect(loaded?.accessKeyId).toBe('ak123');
@@ -178,7 +178,7 @@ describe('config.ts', () => {
 
     it('handles corrupted encryption gracefully', () => {
       const corrupted = { ...sampleConfig, accessKeyId: 'U2FsdGVkX1-CORRUPT-DATA' };
-      localStorageMock.setItem('r2_uploader_config', JSON.stringify(corrupted));
+      localStorageMock.setItem('cloud_storage_uploader_config', JSON.stringify(corrupted));
       const loaded = loadConfig();
       // Should fallback to returning the corrupted string if it fails to parse
       expect(loaded?.accessKeyId).toBe('U2FsdGVkX1-CORRUPT-DATA');

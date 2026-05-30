@@ -1,6 +1,7 @@
 {
-  "name": "r2-uploader",
+  "name": "cloud-storage-uploader",
   "version": "0.1.0",
+  "description": "A modern, high-performance cloud storage management dashboard compatible with S3/R2/OSS/COS, built with Next.js.",
   "private": true,
   "scripts": {
     "build": "next build",

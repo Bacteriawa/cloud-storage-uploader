@@ -179,7 +179,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   // Initializes from localStorage/browser prefs on mount
   useEffect(() => {
-    const savedLang = localStorage.getItem('r2_lang') as Language;
+    const savedLang = localStorage.getItem('csu_lang') as Language;
     if (savedLang && (savedLang === 'en' || savedLang === 'zh')) {
       setLang(savedLang);
     } else {
@@ -187,7 +187,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       setLang(browserLang);
     }
 
-    const savedTheme = localStorage.getItem('r2_theme') as Theme;
+    const savedTheme = localStorage.getItem('csu_theme') as Theme;
     if (savedTheme === 'light' || savedTheme === 'dark') {
       setThemeState(savedTheme);
       document.documentElement.setAttribute('data-theme', savedTheme);
@@ -201,12 +201,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const handleSetLang = (newLang: Language) => {
     setLang(newLang);
-    localStorage.setItem('r2_lang', newLang);
+    localStorage.setItem('csu_lang', newLang);
   };
 
   const handleSetTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem('r2_theme', newTheme);
+    localStorage.setItem('csu_theme', newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
   };
 
