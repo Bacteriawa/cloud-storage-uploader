@@ -9,6 +9,7 @@ import axios from 'axios';
 import pLimit from 'p-limit';
 import { useTranslation } from './LanguageProvider';
 import { useToast } from './Toast';
+import { ErrorBoundary } from './common/ErrorBoundary';
 
 interface Props {
   isOpen: boolean;
@@ -334,6 +335,7 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
             exit={{ scale: 0.9, y: 20 }}
             style={{ maxWidth: '600px', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
           >
+            <ErrorBoundary moduleName="UploadModal">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{ padding: '10px', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '12px', color: 'var(--accent)' }}>
@@ -454,6 +456,7 @@ export default function UploadModal({ isOpen, onOpen, onClose, config, onSuccess
                 </div>
               )}
             </div>
+            </ErrorBoundary>
           </motion.div>
         </motion.div>
       )}

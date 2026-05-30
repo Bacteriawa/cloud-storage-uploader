@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { LanguageProvider } from "@/components/LanguageProvider";
 import { ToastProvider } from "@/components/Toast";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 
 export const metadata: Metadata = {
   title: "Cloud Storage Uploader",
@@ -39,11 +40,13 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <LanguageProvider>
-          <ToastProvider>
-            {children}
-          </ToastProvider>
-        </LanguageProvider>
+        <ErrorBoundary moduleName="RootLayout">
+          <LanguageProvider>
+            <ToastProvider>
+              {children}
+            </ToastProvider>
+          </LanguageProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

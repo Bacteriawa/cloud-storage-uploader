@@ -6,6 +6,7 @@ import { R2Config } from '@/lib/config';
 import { getDownloadUrl } from '@/lib/api';
 import { useTranslation } from './LanguageProvider';
 import { useToast } from './Toast';
+import { ErrorBoundary } from './common/ErrorBoundary';
 
 interface Props {
   fileKey: string | null;
@@ -197,6 +198,7 @@ export default function PreviewModal({ fileKey, config, onClose }: Props) {
           exit={{ scale: 0.9, y: 20 }}
           style={{ maxWidth: '90vw', width: 'auto', maxHeight: '90vh', padding: '16px', display: 'flex', flexDirection: 'column' }}
         >
+          <ErrorBoundary moduleName="PreviewModal">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <h2 style={{ fontSize: '16px', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '80%' }}>
               {fileKey}
@@ -225,6 +227,7 @@ export default function PreviewModal({ fileKey, config, onClose }: Props) {
               <p style={{ color: 'var(--danger)' }}>{error}</p>
             ) : renderPreview()}
           </div>
+          </ErrorBoundary>
         </motion.div>
       </motion.div>
     </AnimatePresence>
